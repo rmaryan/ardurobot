@@ -3,6 +3,7 @@
 
 #include "Arduino.h"
 #include <Servo.h>
+#include "TaskInterface.h"
 
 class RobotDistanceSensor: public TaskInterface {
 private:

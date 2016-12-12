@@ -13,9 +13,10 @@
 /*
  * The list of the possible AI modes
  * modIdle - doing nothing
+ * modRemoteControl - executing remote commands
  * modAI - autonomous mode
  */
-enum AIModes {modIdle, modAI};
+enum AIModes {modIdle, modRemoteControl, modAI};
 
 /*
  * Possible actions which can be taken by the AI

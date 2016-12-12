@@ -21,8 +21,61 @@ RobotAI::~RobotAI() {
 }
 
 void RobotAI::processTask() {
+
+	// Check if to toggle the remote control mode
+	int remoteCommand = 0;
+	if (Serial.available() > 0) {
+		remoteCommand = Serial.read();
+		
+		// "R" means "Toggle Remote Control Mode"
+		if(remoteCommand == 'R') {
+			robotMotors->fullStop();
+			robotVoice->queueSound(sndOK);
+			if(currentAIMode==modRemoteControl) {
+				// switch to the idle mode
+				currentAIMode = modIdle;
+				
+				// notify the RC application about the acceptance of the command
+				// LED will be turned OFF on the RC dashboard
+				Serial.write("RCMODE off\n");
+			} else {
+				// engage the RC mode
+				currentAIMode=modRemoteControl;
+				
+				// notify the RC application about the acceptance of the command
+				// LED will be turned ON on the RC dashboard
+				Serial.write("RCMODE on\n");
+			}
+		}
+	}
+
+
 	switch(currentAIMode) {
+
 	case modIdle: break; //do nothing
+	
+	case modRemoteControl:
+		switch(remoteCommand) {
+		case 0: break;
+		case 'W':
+			// Moving forward
+			robotMotors->driveForward(255, 600);
+			break;
+		case 'A':
+			// Turning Left
+			robotMotors->turnLeft(255, 600);
+			break;
+		case 'D':
+			// Turning Right
+			robotMotors->turnRight(255, 600);
+			break;
+		case 'S':
+			// STOP
+			robotMotors->fullStop();
+			break;
+		}
+		break;
+
 	case modAI:
 		//autonomous mode
 		if(reachedDeadline()) {

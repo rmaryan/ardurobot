@@ -8,7 +8,6 @@
 #include "RobotMotors.h"
 #include "RobotVoice.h"
 #include "RobotAI.h"
-
 /*
  * This is a block which stores allocations of all Arduino pins used by different functions.
  * It is better to have this stored in a single place, rather than spreading it all over the code.
@@ -32,6 +31,12 @@ void setup() {
 	robotTasks[0] = &motors;
 	robotTasks[1] = &robotVoice;
 	robotTasks[2] = &robotAI;
+
+	// open a serial connection for the remote control
+	Serial.begin(9600);
+	while (!Serial) {
+		; // wait for serial port to connect. Needed for native USB port only
+	}
 }
 
 void loop() {

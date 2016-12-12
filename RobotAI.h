@@ -8,7 +8,9 @@
 
 #include "TaskInterface.h"
 #include "RobotMotors.h"
+#include "RobotLights.h"
 #include "RobotVoice.h"
+#include "RobotDistanceSensor.h"
 
 /*
  * The list of the possible AI modes
@@ -16,7 +18,9 @@
  * modRemoteControl - executing remote commands
  * modAI - autonomous mode
  */
-enum AIModes {modIdle, modRemoteControl, modAI};
+enum AIModes {
+	modIdle, modRemoteControl, modScript, modAI
+};
 
 /*
  * Possible actions which can be taken by the AI
@@ -28,7 +32,9 @@ enum AIModes {modIdle, modRemoteControl, modAI};
  * VQ - voice say question
  * VO - voice say OK
  */
-enum AIAction {W, MF, ML, MR, VH, VQ, VO};
+enum AIAction {
+	W, MF, ML, MR, VH, VQ, VO
+};
 
 /*
  * Container for a single script line. Something to be executed during some period of time
@@ -42,9 +48,13 @@ class RobotAI: public TaskInterface {
 private:
 	// references to the other robot modules
 	RobotMotors* robotMotors;
+	RobotLights* robotLights;
 	RobotVoice* robotVoice;
+	RobotDistanceSensor* robotDistanceSensor;
+	uint8_t abyssPin;
 
 	AIModes currentAIMode = modAI;
+	volatile bool abyssDetectedFlag = false; // is set to true if the abyss detection interrupt is caused
 	uint8_t currentScriptLine = 0;
 
 	/*
@@ -52,23 +62,25 @@ private:
 	 * Robot will perform this script after being switched on, then will stop and idle forever
 	 */
 	static const uint8_t SCRIPT_LENGTH = 8;
-	AIScriptLine aiScript[SCRIPT_LENGTH] = {
-			{VQ, 1000}, // beep the question sound
-			{W, 1000},  // wait one more second
-			{VO, 1000}, // beep the "OK" sound
-			{MF, 6000}, // move forward for 6 seconds
-			{MR, 6000}, // turn right for 6 seconds
-			{MF, 6000}, // move forward for 6 seconds
-			{ML, 12000}, // turn left for 12 seconds
-			{MF, 3000}   // move forward for 3 seconds
+	AIScriptLine aiScript[SCRIPT_LENGTH] = { { VQ, 1000 }, // beep the question sound
+			{ W, 1000 },  // wait one more second
+			{ VO, 1000 }, // beep the "OK" sound
+			{ MF, 6000 }, // move forward for 6 seconds
+			{ MR, 6000 }, // turn right for 6 seconds
+			{ MF, 6000 }, // move forward for 6 seconds
+			{ ML, 12000 }, // turn left for 12 seconds
+			{ MF, 3000 }   // move forward for 3 seconds
 
 	};
+
+	void abyssDetected();
 
 public:
 	/*
 	 * Robot AI constructor initializes the AI and stores the references to other robot modules.
 	 */
-	RobotAI(RobotMotors* in_robotMotors, RobotVoice* in_robotVoice);
+	RobotAI(RobotMotors* in_robotMotors, RobotLights* in_robotLights,
+			RobotVoice* in_robotVoice, uint8_t in_abyssPin, uint8_t in_usServoPin, uint8_t in_usTriggerPin, uint8_t in_usEchoPin);
 
 	/*
 	 * Cease all AI activities gracefully

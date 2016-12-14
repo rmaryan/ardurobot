@@ -26,47 +26,33 @@ void RobotMotors::processTask() {
 
 void RobotMotors::driveForward(uint8_t speed, uint16_t duration) {
 	currentCommand = cmdFwd;
-
-	leftMotor->setSpeed(speed);
-	rightMotor->setSpeed(speed);
-	leftMotor->run(FORWARD);
-	rightMotor->run(FORWARD);
-
-	scheduleTimedTask(duration);
+	runDrives(speed, duration, FORWARD, FORWARD);
 }
 
 void RobotMotors::driveBackward(uint8_t speed, uint16_t duration) {
 	currentCommand = cmdFwd;
-
-	leftMotor->setSpeed(speed);
-	rightMotor->setSpeed(speed);
-	leftMotor->run(BACKWARD);
-	rightMotor->run(BACKWARD);
-
-	scheduleTimedTask(duration);
+	runDrives(speed, duration, BACKWARD, BACKWARD);
 }
 
 
 void RobotMotors::turnRight(uint8_t speed, uint16_t duration) {
 	currentCommand = cmdRight;
-
-	leftMotor->setSpeed(speed);
-	rightMotor->setSpeed(speed);
-	leftMotor->run(FORWARD);
-	rightMotor->run(BACKWARD);
-
-	scheduleTimedTask(duration);
+	runDrives(speed, duration, FORWARD, BACKWARD);
 }
 
 void RobotMotors::turnLeft(uint8_t speed, uint16_t duration) {
 	currentCommand = cmdLeft;
+	runDrives(speed, duration, BACKWARD, FORWARD);
+}
 
-	leftMotor->setSpeed(speed);
-	rightMotor->setSpeed(speed);
-	leftMotor->run(BACKWARD);
-	rightMotor->run(FORWARD);
+void RobotMotors::runDrives(uint8_t speed, uint16_t duration,
+                     uint8_t leftDirection, uint8_t rightDirection) {
+ leftMotor->setSpeed(speed);
+ rightMotor->setSpeed(speed);
+ leftMotor->run(leftDirection);
+ rightMotor->run(rightDirection);
 
-	scheduleTimedTask(duration);
+ scheduleTimedTask(duration);
 }
 
 void RobotMotors::fullStop() {

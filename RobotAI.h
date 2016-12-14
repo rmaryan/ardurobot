@@ -48,9 +48,9 @@ class RobotAI: public TaskInterface {
 private:
 	// references to the other robot modules
 	RobotMotors* robotMotors;
+	RobotDistanceSensor* robotDistanceSensor;
 	RobotLights* robotLights;
 	RobotVoice* robotVoice;
-	RobotDistanceSensor* robotDistanceSensor;
 	uint8_t abyssPin;
 
 	AIModes currentAIMode = modAI;
@@ -79,8 +79,8 @@ public:
 	/*
 	 * Robot AI constructor initializes the AI and stores the references to other robot modules.
 	 */
-	RobotAI(RobotMotors* in_robotMotors, RobotLights* in_robotLights,
-			RobotVoice* in_robotVoice, uint8_t in_abyssPin, uint8_t in_usServoPin, uint8_t in_usTriggerPin, uint8_t in_usEchoPin);
+	RobotAI(RobotMotors* in_robotMotors, RobotDistanceSensor* in_robotDistanceSensor, RobotLights* in_robotLights,
+			RobotVoice* in_robotVoice, uint8_t in_abyssPin);
 
 	/*
 	 * Cease all AI activities gracefully

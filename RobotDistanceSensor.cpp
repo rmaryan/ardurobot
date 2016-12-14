@@ -1,9 +1,5 @@
 #include "RobotDistanceSensor.h"
 
-const uint8_t F_POS = 90;
-const uint8_t FL_POS = 140;
-const uint8_t FR_POS = 40;
-
 RobotDistanceSensor::RobotDistanceSensor(uint8_t in_servoPin, uint8_t in_triggerPin, uint8_t in_echoPin)
 {
 	triggerPin=in_triggerPin;
@@ -12,6 +8,12 @@ RobotDistanceSensor::RobotDistanceSensor(uint8_t in_servoPin, uint8_t in_trigger
 	pinMode(triggerPin, OUTPUT);
 	pinMode(echoPin, INPUT);
 	usServo.attach(in_servoPin);
+	// make sure we are ready for the front distance measurements
+	usServo.write(F_POS);
+}
+
+RobotDistanceSensor::~RobotDistanceSensor() {
+	;
 }
 
 int8_t RobotDistanceSensor::getDistance()
@@ -25,20 +27,22 @@ int8_t RobotDistanceSensor::getDistance()
 	long duration = pulseIn(echoPin, HIGH);
 
 	// for the infinity - return something big
-	if(duration == 0) duration = 6000;
-
-	return round(duration /29 / 2);
+	if(duration == 0)
+		return 100;
+	else
+		return round(duration /29 / 2);
 }
 
 int8_t RobotDistanceSensor::getFrontDistance() {
 	int8_t distance = lastFDistance;
 
 	// can we read the distance instantly?
-	if(usServo.read()==F_POS) {
+	// the servo myust point to front and be stable
+	if((usServo.read()==F_POS) &&
+			((dsState == dsIdle)||(dsState == dsResultsReady))) {
 		// read the distance from the sensor
 		distance = getDistance();
 	}
-
 	return distance;
 }
 
@@ -46,7 +50,8 @@ int8_t RobotDistanceSensor::getFrontLeftDistance() {
 	int8_t distance = lastFLDistance;
 
 	// can we read the distance instantly?
-	if(usServo.read()==FL_POS) {
+	if((usServo.read()==FL_POS) &&
+			((dsState == dsIdle)||(dsState == dsResultsReady))) {
 		// read the distance from the sensor
 		distance = getDistance();
 	}
@@ -58,10 +63,67 @@ int8_t RobotDistanceSensor::getFrontRightDistance() {
 	int8_t distance = lastFRDistance;
 
 	// can we read the distance instantly?
-	if(usServo.read()==FR_POS) {
+	if((usServo.read()==FR_POS) &&
+			((dsState == dsIdle)||(dsState == dsResultsReady))) {
 		// read the distance from the sensor
 		distance = getDistance();
 	}
 
 	return distance;
+}
+
+void RobotDistanceSensor::querySideDistances() {
+	// start measuring from the front-right
+	dsState = dsMeasuringFR;
+
+	// wait till servo will finish turning
+	// it will take from SERVO_DELAY to 2*SERVO_DELAY
+	uint16_t servoDelay = (usServo.read()>F_POS) ? 2*SERVO_DELAY : SERVO_DELAY;
+
+	usServo.write(FR_POS);
+
+	scheduleTimedTask(servoDelay);
+}
+
+
+void RobotDistanceSensor::processTask() {
+	switch (dsState) {
+	case dsIdle:
+		break; //do nothing
+	case dsMeasuringFR:
+		// the servo finished turning
+		// measure the distance and turn left
+		lastFRDistance = getDistance();
+		usServo.write(FL_POS);
+
+		dsState = dsMeasuringFL;
+		scheduleTimedTask(2*SERVO_DELAY);
+		break;
+	case dsMeasuringFL:
+		// the servo finished turning
+		// measure the distance and turn forward
+		lastFLDistance = getDistance();
+		usServo.write(F_POS);
+
+		dsState = dsMeasuringFF;
+		scheduleTimedTask(SERVO_DELAY);
+		break;
+	case dsMeasuringFF:
+		// the servo finished turning
+		// measure the distance and wait for the validity period
+		lastFDistance = getDistance();
+
+		dsState = dsResultsReady;
+		scheduleTimedTask(VALIDITY_PERIOD);
+		break;
+	case dsResultsReady:
+		// validity period ended
+		// drop the distance values
+		lastFDistance = -1;
+		lastFLDistance = -1;
+		lastFRDistance = -1;
+
+		dsState = dsIdle;
+		break;
+	}
 }

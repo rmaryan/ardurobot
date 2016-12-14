@@ -5,14 +5,13 @@
 
 #include "RobotAI.h"
 
-RobotAI::RobotAI(RobotMotors* in_robotMotors, RobotLights* in_robotLights,
-		RobotVoice* in_robotVoice, uint8_t in_abyssPin, uint8_t in_usServoPin, uint8_t in_usTriggerPin, uint8_t in_usEchoPin) {
+RobotAI::RobotAI(RobotMotors* in_robotMotors, RobotDistanceSensor* in_robotDistanceSensor, RobotLights* in_robotLights,
+		RobotVoice* in_robotVoice, uint8_t in_abyssPin) {
 	robotMotors = in_robotMotors;
+	robotDistanceSensor = in_robotDistanceSensor;
 	robotLights = in_robotLights;
 	robotVoice = in_robotVoice;
 	abyssPin = in_abyssPin;
-
-	robotDistanceSensor = new RobotDistanceSensor(in_usServoPin, in_usTriggerPin, in_usEchoPin);
 
 	//attachInterrupt(abyssPin, abyssDetected, FALLING);
 
@@ -24,7 +23,7 @@ RobotAI::RobotAI(RobotMotors* in_robotMotors, RobotLights* in_robotLights,
 }
 
 RobotAI::~RobotAI() {
-	delete robotDistanceSensor;
+	;
 }
 
 void RobotAI::processTask() {
@@ -40,7 +39,7 @@ void RobotAI::processTask() {
 		if (Serial.available() > 0) {
 			remoteCommand = Serial.read();
 
-                        // "R" means "Toggle Remote Control Mode"
+			// "R" means "Toggle Remote Control Mode"
 			if (remoteCommand == 'R') {
 				robotMotors->fullStop();
 				robotVoice->queueSound(sndOK);
@@ -48,15 +47,15 @@ void RobotAI::processTask() {
 					// switch to the idle mode
 					currentAIMode = modIdle;
 
-              				// notify the RC application about the acceptance of the command
-                                        // LED will be turned OFF on the RC dashboard
+					// notify the RC application about the acceptance of the command
+					// LED will be turned OFF on the RC dashboard
 					Serial.write("RCMODE off\n");
 				} else {
-                                        // engage the RC mode
+					// engage the RC mode
 					currentAIMode = modRemoteControl;
 
-                                        // notify the RC application about the acceptance of the command
-				        // LED will be turned ON on the RC dashboard
+					// notify the RC application about the acceptance of the command
+					// LED will be turned ON on the RC dashboard
 					Serial.write("RCMODE on\n");
 				}
 			}
@@ -65,7 +64,7 @@ void RobotAI::processTask() {
 		switch (currentAIMode) {
 		case modIdle:
 			break; //do nothing
-		case modRemoteControl:
+		case modRemoteControl: {
 			switch (remoteCommand) {
 			case 0:
 				break;
@@ -87,8 +86,9 @@ void RobotAI::processTask() {
 				break;
 			}
 			break;
+		}
 		case modScript:
-			//autonomous mode
+			//scripted moving mode
 			if (reachedDeadline()) {
 				//get the next command from the script
 				if (currentScriptLine < SCRIPT_LENGTH) {
@@ -137,26 +137,29 @@ void RobotAI::processTask() {
 			// a simple wandering around mode, with the use of the distance sensor
 
 			// obstacle detection distance (cm)
-			const float MIN_DISTANCE = 20.0;
-			float distance = robotDistanceSensor->getFrontDistance();
+			const uint8_t MIN_DISTANCE = 20;
+			uint8_t distance = robotDistanceSensor->getFrontDistance();
 
-			Serial.println(distance,2);
+			Serial.println(distance);
 
 			// is there an obstacle in front of the robot?
 			if(distance < MIN_DISTANCE) {
 				robotMotors->fullStop();
+				robotVoice->queueSound(sndQuestion);
 
-				float frDistance = robotDistanceSensor->getFrontRightDistance();
-				float flDistance = robotDistanceSensor->getFrontLeftDistance();
+				//TODO complete the collision avoidance code
 
-				if(frDistance > flDistance) {
-					// turn right
-					robotMotors->turnRight(255, 1000);
-				} else {
-					// turn left
-					robotMotors->turnLeft(255, 1000);
-				}
-				scheduleTimedTask(1200);
+//				float frDistance = robotDistanceSensor->getFrontRightDistance();
+//				float flDistance = robotDistanceSensor->getFrontLeftDistance();
+//
+//				if(frDistance > flDistance) {
+//					// turn right
+//					robotMotors->turnRight(255, 1000);
+//				} else {
+//					// turn left
+//					robotMotors->turnLeft(255, 1000);
+//				}
+//				scheduleTimedTask(1200);
 			} else {
 				robotMotors->driveForward(255, 200);
 				scheduleTimedTask(100);

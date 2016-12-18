@@ -28,8 +28,8 @@ private:
 	static const uint16_t VALIDITY_PERIOD = 1000;
 
 	// the time for servo in ms to turn the head by 45 degree
-	// taken from the servo specs: Operating Speed (4.8V no load): 0.12sec/60 degrees
-	static const uint16_t SERVO_DELAY = 100;
+	// minimum is ~100 ms (from the servo specs: Operating Speed (4.8V no load): 0.12sec/60 degrees)
+	static const uint16_t SERVO_DELAY = 300;
 
 	// the sensors state
 	DSStates dsState = dsIdle;

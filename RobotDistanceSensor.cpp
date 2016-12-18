@@ -9,6 +9,7 @@ RobotDistanceSensor::RobotDistanceSensor(uint8_t in_servoPin, uint8_t in_trigger
 	pinMode(echoPin, INPUT);
 	usServo.attach(in_servoPin);
 	// make sure we are ready for the front distance measurements
+	Serial.write("FRONT 1\n");
 	usServo.write(F_POS);
 }
 
@@ -80,6 +81,7 @@ void RobotDistanceSensor::querySideDistances() {
 	// it will take from SERVO_DELAY to 2*SERVO_DELAY
 	uint16_t servoDelay = (usServo.read()>F_POS) ? 2*SERVO_DELAY : SERVO_DELAY;
 
+	Serial.write("FRONT-RIGHT\n");
 	usServo.write(FR_POS);
 
 	scheduleTimedTask(servoDelay);
@@ -87,43 +89,47 @@ void RobotDistanceSensor::querySideDistances() {
 
 
 void RobotDistanceSensor::processTask() {
-	switch (dsState) {
-	case dsIdle:
-		break; //do nothing
-	case dsMeasuringFR:
-		// the servo finished turning
-		// measure the distance and turn left
-		lastFRDistance = getDistance();
-		usServo.write(FL_POS);
+	if (reachedDeadline()) {
+		switch (dsState) {
+		case dsIdle:
+			break; //do nothing
+		case dsMeasuringFR:
+			// the servo finished turning
+			// measure the distance and turn left
+			lastFRDistance = getDistance();
+			Serial.write("FRONT LEFT\n");
+			usServo.write(FL_POS);
 
-		dsState = dsMeasuringFL;
-		scheduleTimedTask(2*SERVO_DELAY);
-		break;
-	case dsMeasuringFL:
-		// the servo finished turning
-		// measure the distance and turn forward
-		lastFLDistance = getDistance();
-		usServo.write(F_POS);
+			dsState = dsMeasuringFL;
+			scheduleTimedTask(SERVO_DELAY);
+			break;
+		case dsMeasuringFL:
+			// the servo finished turning
+			// measure the distance and turn forward
+			lastFLDistance = getDistance();
+			Serial.write("FRONT 2\n");
+			usServo.write(F_POS);
 
-		dsState = dsMeasuringFF;
-		scheduleTimedTask(SERVO_DELAY);
-		break;
-	case dsMeasuringFF:
-		// the servo finished turning
-		// measure the distance and wait for the validity period
-		lastFDistance = getDistance();
+			dsState = dsMeasuringFF;
+			scheduleTimedTask(SERVO_DELAY);
+			break;
+		case dsMeasuringFF:
+			// the servo finished turning
+			// measure the distance and wait for the validity period
+			lastFDistance = getDistance();
 
-		dsState = dsResultsReady;
-		scheduleTimedTask(VALIDITY_PERIOD);
-		break;
-	case dsResultsReady:
-		// validity period ended
-		// drop the distance values
-		lastFDistance = -1;
-		lastFLDistance = -1;
-		lastFRDistance = -1;
+			dsState = dsResultsReady;
+			scheduleTimedTask(VALIDITY_PERIOD);
+			break;
+		case dsResultsReady:
+			// validity period ended
+			// drop the distance values
+			lastFDistance = -1;
+			lastFLDistance = -1;
+			lastFRDistance = -1;
 
-		dsState = dsIdle;
-		break;
+			dsState = dsIdle;
+			break;
+		}
 	}
 }

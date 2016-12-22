@@ -15,8 +15,8 @@
  * This is a block which stores allocations of all Arduino pins used by different functions.
  * It is better to have this stored in a single place, rather than spreading it all over the code.
  */
-// PIN 0 used by ESP13
-// PIN 1 used by ESP13
+// PIN 0 used by Arduino programmer
+// PIN 1 used by Arduino programmer
 // PIN 2 FREE
 // PIN 3 used by the motor shield (drive 2)
 // PIN 4 used by the motor shield
@@ -28,6 +28,8 @@ const uint8_t US_SERVO_PIN = 9;
 const uint8_t VOICE_PIN = 10;
 // PIN 11 is used by the motor shield (drive 1)
 // PIN 12 is used by the motor shield
+// PIN 14 used by ESP13 (Serial3 - remote control)
+// PIN 15 used by ESP13 (Serial3 - remote control)
 const uint8_t US_ECHO_PIN = 22;
 const uint8_t US_TRG_PIN = 23;
 
@@ -43,11 +45,14 @@ const uint8_t TASKS_COUNT = 5;
 static TaskInterface* (robotTasks[TASKS_COUNT]);
 
 void setup() {
-	// open a serial connection for the remote control
+	// open a serial port for the debug messages
 	Serial.begin(9600);
 	while (!Serial) {
 		; // wait for serial port to connect. Needed for native USB port only
 	}
+
+	// open a serial connection for the remote control
+	Serial3.begin(9600);
 
 	// Define the entities which have own time slice in the main loop (tasks)
 	RobotMotors* motors = new RobotMotors();

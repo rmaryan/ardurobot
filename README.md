@@ -16,12 +16,19 @@ See the details at http://refunpro.blogspot.com/ (in Ukrainian)
 ## Software
 
 ### Core
-*robot.ino* - the entry point with the standard Arduino setup() and loop() functions
-*TaskInterface.h* - defines the parent class for all "tasks" which are given a quant of time in the main multitasking loop
-*RobotAI.h* - the core class which orchestrates all the robot actions (including scenarios execution and remote control over Wi-Fi)
 
-### Robot modules:
-*RobotDistanceSensor.h* - class for accessing the ultrasonic distance sensor
-*RobotLights.h* - class for controlling robot LED's
-*RobotMotors.h* - class for controling chasis motors
-*RobotVoice.h* - class for generating sounds
+*robot.ino* - the entry point with the standard Arduino setup() and loop() functions
+
+*TaskInterface.h* - defines the parent class for all "tasks" which are given a quant of time in the main multitasking loop
+
+*RobotAI.h/.cpp* - the core class which orchestrates all the robot actions (including scenarios execution and remote control over Wi-Fi)
+
+### Robot modules
+
+*RobotDistanceSensor.h/.cpp* - class for accessing the ultrasonic distance sensor
+
+*RobotLights.h/.cpp* - class for controlling robot LED's
+
+*RobotMotors.h/.cpp* - class for controling chasis motors
+
+*RobotVoice.h/.cpp* - class for generating sounds

@@ -36,8 +36,8 @@ void RobotAI::processTask() {
 
 		// Check if to toggle the remote control mode
 		int remoteCommand = 0;
-		if (Serial.available() > 0) {
-			remoteCommand = Serial.read();
+		if (Serial3.available() > 0) {
+			remoteCommand = Serial3.read();
 
 			// "R" means "Toggle Remote Control Mode"
 			if (remoteCommand == 'R') {
@@ -49,14 +49,14 @@ void RobotAI::processTask() {
 
 					// notify the RC application about the acceptance of the command
 					// LED will be turned OFF on the RC dashboard
-					Serial.write("RCMODE off\n");
+					Serial3.write("RCMODE off\n");
 				} else {
 					// engage the RC mode
 					currentAIMode = modRemoteControl;
 
 					// notify the RC application about the acceptance of the command
 					// LED will be turned ON on the RC dashboard
-					Serial.write("RCMODE on\n");
+					Serial3.write("RCMODE on\n");
 				}
 			}
 		}
@@ -69,19 +69,15 @@ void RobotAI::processTask() {
 			case 0:
 				break;
 			case 'W':
-				Serial.write("dbg Moving forward\n");
 				robotMotors->driveForward(255, 600);
 				break;
 			case 'A':
-				Serial.write("dbg Turning Left\n");
 				robotMotors->turnLeft(255, 600);
 				break;
 			case 'D':
-				Serial.write("dbg Turning Right\n");
 				robotMotors->turnRight(255, 600);
 				break;
 			case 'S':
-				Serial.write("dbg STOP\n");
 				robotMotors->fullStop();
 				break;
 			}
@@ -136,33 +132,31 @@ void RobotAI::processTask() {
 		case modAI:
 			// a simple wandering around mode, with the use of the distance sensor
 
-			// obstacle detection distance (cm)
-			const uint8_t MIN_DISTANCE = 20;
-			uint8_t distance = robotDistanceSensor->getFrontDistance();
+			if (reachedDeadline()) {
+				// obstacle detection distance (cm)
+				const uint8_t MIN_DISTANCE = 20;
+				uint8_t distance = robotDistanceSensor->getFrontDistance();
 
-			Serial.println(distance);
+				if(distance == -1) {
+					scheduleTimedTask(300);
+				} else {
 
-			// is there an obstacle in front of the robot?
-			if(distance < MIN_DISTANCE) {
-				robotMotors->fullStop();
-				robotVoice->queueSound(sndQuestion);
+					// is there an obstacle in front of the robot?
+					if(distance < MIN_DISTANCE) {
+						robotMotors->fullStop();
+						robotVoice->queueSound(sndQuestion);
 
-				//TODO complete the collision avoidance code
+						robotDistanceSensor->querySideDistances();
 
-//				float frDistance = robotDistanceSensor->getFrontRightDistance();
-//				float flDistance = robotDistanceSensor->getFrontLeftDistance();
-//
-//				if(frDistance > flDistance) {
-//					// turn right
-//					robotMotors->turnRight(255, 1000);
-//				} else {
-//					// turn left
-//					robotMotors->turnLeft(255, 1000);
-//				}
-//				scheduleTimedTask(1200);
-			} else {
-				robotMotors->driveForward(255, 200);
-				scheduleTimedTask(100);
+						scheduleTimedTask(1500);
+
+						//TODO complete the collision avoidance code
+
+					} else {
+						robotMotors->driveForward(160, 200);
+						scheduleTimedTask(200);
+					}
+				}
 			}
 		}
 	}

@@ -15,8 +15,8 @@
  * This is a block which stores allocations of all Arduino pins used by different functions.
  * It is better to have this stored in a single place, rather than spreading it all over the code.
  */
-// PIN 0 used by ESP13
-// PIN 1 used by ESP13
+// PIN 0 used by Arduino programmer
+// PIN 1 used by Arduino programmer
 // PIN 2 FREE
 // PIN 3 used by the motor shield (drive 2)
 // PIN 4 used by the motor shield
@@ -28,6 +28,8 @@ const uint8_t US_SERVO_PIN = 9;
 const uint8_t VOICE_PIN = 10;
 // PIN 11 is used by the motor shield (drive 1)
 // PIN 12 is used by the motor shield
+// PIN 14 used by ESP13 (Serial3 - remote control)
+// PIN 15 used by ESP13 (Serial3 - remote control)
 const uint8_t US_ECHO_PIN = 22;
 const uint8_t US_TRG_PIN = 23;
 
@@ -42,26 +44,29 @@ const uint8_t TASKS_COUNT = 5;
 // the list of the robots tasks to be executed in the main loop
 static TaskInterface* (robotTasks[TASKS_COUNT]);
 
-// Define the entities which have own time slice in the main loop (tasks)
-static RobotMotors motors;
-static RobotDistanceSensor robotDistanceSensor(US_SERVO_PIN, US_TRG_PIN, US_ECHO_PIN);
-static RobotLights robotLights(LED_DATA_PIN, LED_SYNC_PIN, LED_LATCH_PIN);
-static RobotVoice  robotVoice(VOICE_PIN);
-static RobotAI     robotAI(&motors, &robotDistanceSensor, &robotLights, &robotVoice, ABYSS_PIN);
-
 void setup() {
-	// create the tasks list
-	robotTasks[0] = &motors;
-	robotTasks[1] = &robotDistanceSensor;
-	robotTasks[2] = &robotLights;
-	robotTasks[3] = &robotVoice;
-	robotTasks[4] = &robotAI;
-
-	// open a serial connection for the remote control
+	// open a serial port for the debug messages
 	Serial.begin(9600);
 	while (!Serial) {
 		; // wait for serial port to connect. Needed for native USB port only
 	}
+
+	// open a serial connection for the remote control
+	Serial3.begin(9600);
+
+	// Define the entities which have own time slice in the main loop (tasks)
+	RobotMotors* motors = new RobotMotors();
+	RobotDistanceSensor* robotDistanceSensor = new RobotDistanceSensor(US_SERVO_PIN, US_TRG_PIN, US_ECHO_PIN);
+	RobotLights* robotLights = new RobotLights(LED_DATA_PIN, LED_SYNC_PIN, LED_LATCH_PIN);
+	RobotVoice*  robotVoice = new RobotVoice(VOICE_PIN);
+	RobotAI*     robotAI = new RobotAI(motors, robotDistanceSensor, robotLights, robotVoice, ABYSS_PIN);
+
+	// create the tasks list
+	robotTasks[0] = motors;
+	robotTasks[1] = robotDistanceSensor;
+	robotTasks[2] = robotLights;
+	robotTasks[3] = robotVoice;
+	robotTasks[4] = robotAI;
 }
 
 void loop() {

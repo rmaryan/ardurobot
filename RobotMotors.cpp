@@ -25,23 +25,19 @@ void RobotMotors::processTask() {
 }
 
 void RobotMotors::driveForward(uint8_t speed, uint16_t duration) {
-	currentCommand = cmdFwd;
 	runDrives(speed, duration, FORWARD, FORWARD);
 }
 
 void RobotMotors::driveBackward(uint8_t speed, uint16_t duration) {
-	currentCommand = cmdFwd;
 	runDrives(speed, duration, BACKWARD, BACKWARD);
 }
 
 
 void RobotMotors::turnRight(uint8_t speed, uint16_t duration) {
-	currentCommand = cmdRight;
 	runDrives(speed, duration, FORWARD, BACKWARD);
 }
 
 void RobotMotors::turnLeft(uint8_t speed, uint16_t duration) {
-	currentCommand = cmdLeft;
 	runDrives(speed, duration, BACKWARD, FORWARD);
 }
 
@@ -56,8 +52,6 @@ void RobotMotors::runDrives(uint8_t speed, uint16_t duration,
 }
 
 void RobotMotors::fullStop() {
-	currentCommand = cmdStop;
-
 	leftMotor->run(RELEASE);
 	rightMotor->run(RELEASE);
 }

@@ -28,8 +28,6 @@ private:
 	AF_DCMotor* leftMotor;
 	AF_DCMotor* rightMotor;
 
-	MotorCurrentCommand currentCommand = cmdStop; // the field where current motors state is stored
-
 	void runDrives(uint8_t speed, uint16_t duration,
 	               uint8_t leftDirection, uint8_t rightDirection);
 

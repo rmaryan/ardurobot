@@ -137,6 +137,8 @@ void RobotAI::processTask() {
 				const uint8_t MIN_DISTANCE = 20;
 				uint8_t distance = robotDistanceSensor->getFrontDistance();
 
+				// get the front distance
+				// if not available yet - wait 300 ms
 				if(distance == -1) {
 					scheduleTimedTask(300);
 				} else {
@@ -148,13 +150,13 @@ void RobotAI::processTask() {
 
 						robotDistanceSensor->querySideDistances();
 
-						scheduleTimedTask(1500);
+						scheduleTimedTask(5000);
 
 						//TODO complete the collision avoidance code
 
 					} else {
 						robotMotors->driveForward(160, 200);
-						scheduleTimedTask(200);
+						scheduleTimedTask(300);
 					}
 				}
 			}

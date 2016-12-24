@@ -11,10 +11,9 @@
  * dsMeasuringFR - turning sensor to the Front-Right position
  * dsMeasuringFL - turning sensor to the Front-Left position
  * dsMeasuringFF - turning sensor to the Front position
- * dsResultsReady - results are ready, waiting for the expiration
  */
 enum DSStates {
-	dsIdle, dsMeasuringFR, dsMeasuringFL, dsMeasuringFF, dsResultsReady
+	dsIdle, dsMeasuringFR, dsMeasuringFL, dsMeasuringFF
 };
 
 class RobotDistanceSensor: public TaskInterface {
@@ -24,12 +23,13 @@ private:
 	static const uint8_t FL_POS = 140;
 	static const uint8_t FR_POS = 40;
 
-	// the duration in ms of the validity of the measured distances
-	static const uint16_t VALIDITY_PERIOD = 1000;
-
 	// the time for servo in ms to turn the head by 45 degree
 	// minimum is ~100 ms (from the servo specs: Operating Speed (4.8V no load): 0.12sec/60 degrees)
+	// choosing here a safe and graceful value
 	static const uint16_t SERVO_DELAY = 300;
+
+	// do not bother the sensor more frequently than once per 200 ms
+	static const uint16_t FRONT_MEASURE_VALIDITY = 200;
 
 	// the sensors state
 	DSStates dsState = dsIdle;
@@ -40,10 +40,12 @@ private:
 	Servo usServo;
 
 	// temporary storage for the last measured distance
-	// these value expire in 1 second after the measurement
 	int8_t lastFDistance = -1;
 	int8_t lastFLDistance = -1;
 	int8_t lastFRDistance = -1;
+
+	// the timestamp of the last front distance measurement
+	long lastFDistanceTimeStamp = 0;
 
 	// just reads the distance from the sensor regardless of the servo position
 	// returns the distance in cm
@@ -61,18 +63,25 @@ public:
 	 */
 	virtual void processTask();
 
+
 	/*
-	 * These three methods returns the distances if they are available or -1 if not
-	 * distance is being measured instantly if possible (if the head is turned to the
-	 * appropriate direction
-	*/
+	 * Return a distance in front of the robot.
+	 * Front distance is measured instantly if possible (if the head is turned to the
+	 * appropriate direction) but not more frequent then once per 200 ms
+	 */
 	int8_t getFrontDistance();
-	int8_t getFrontLeftDistance();
-	int8_t getFrontRightDistance();
+
+	/*
+	 * These two methods return the distances if they are available or -1 if not.
+	 * Front-Right and Front-Left distances are not measured instantly.
+	 * Cast querySideDistances() to refresh them.
+	*/
+	int8_t getLastFrontLeftDistance();
+	int8_t getLastFrontRightDistance();
 
 	 /*
-	  * Initiate the measurement of the side distances (front-left, front, front-rihgt)
-	  * this method performs a sequence of actions on turining the head and measuring the distances
+	  * Initiate the measurement of the side distances (front-left and front-rihgt)
+	  * this method performs a sequence of actions on turning the head and measuring the distances
 	  * this work can take up to 500 ms
 	  */
 	void querySideDistances();

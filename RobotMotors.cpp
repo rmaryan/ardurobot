@@ -6,16 +6,15 @@
 #include "RobotMotors.h"
 #include "Arduino.h"
 
-RobotMotors::RobotMotors(uint8_t in_leftDrivePin,
-		uint8_t in_rightDrivePin) {
-	leftDrivePin = in_leftDrivePin;
-	rightDrivePin = in_rightDrivePin;
-	pinMode(leftDrivePin, OUTPUT);
-	pinMode(rightDrivePin, OUTPUT);
+RobotMotors::RobotMotors() {
+	leftMotor = new AF_DCMotor(leftDriveID, MOTOR34_64KHZ);
+	rightMotor = new AF_DCMotor(rightDriveID, MOTOR34_64KHZ);
 }
 
 RobotMotors::~RobotMotors() {
 	fullStop();
+	delete leftMotor;
+	delete rightMotor;
 }
 
 void RobotMotors::processTask() {
@@ -26,29 +25,34 @@ void RobotMotors::processTask() {
 }
 
 void RobotMotors::driveForward(uint8_t speed, uint16_t duration) {
-	currentCommand = cmdFwd;
-	analogWrite(leftDrivePin, speed);
-	analogWrite(rightDrivePin, speed);
-	scheduleTimedTask(duration);
+	runDrives(speed, duration, FORWARD, FORWARD);
 }
 
+void RobotMotors::driveBackward(uint8_t speed, uint16_t duration) {
+	runDrives(speed, duration, BACKWARD, BACKWARD);
+}
+
+
 void RobotMotors::turnRight(uint8_t speed, uint16_t duration) {
-	currentCommand = cmdRight;
-	analogWrite(leftDrivePin, speed);
-	analogWrite(rightDrivePin, 0);
-	scheduleTimedTask(duration);
+	runDrives(speed, duration, FORWARD, BACKWARD);
 }
 
 void RobotMotors::turnLeft(uint8_t speed, uint16_t duration) {
-	currentCommand = cmdLeft;
-	analogWrite(leftDrivePin, 0);
-	analogWrite(rightDrivePin, speed);
-	scheduleTimedTask(duration);
+	runDrives(speed, duration, BACKWARD, FORWARD);
+}
+
+void RobotMotors::runDrives(uint8_t speed, uint16_t duration,
+                     uint8_t leftDirection, uint8_t rightDirection) {
+ leftMotor->setSpeed(speed);
+ rightMotor->setSpeed(speed);
+ leftMotor->run(leftDirection);
+ rightMotor->run(rightDirection);
+
+ scheduleTimedTask(duration);
 }
 
 void RobotMotors::fullStop() {
-	currentCommand = cmdStop;
-	analogWrite(leftDrivePin, 0);
-	analogWrite(rightDrivePin, 0);
+	leftMotor->run(RELEASE);
+	rightMotor->run(RELEASE);
 }
 

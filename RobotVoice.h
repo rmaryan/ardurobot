@@ -14,8 +14,8 @@ class RobotVoice: public TaskInterface {
 private:
 	uint8_t voicePin; // storage for the pin number where a beeper is connected
 	VoiceSounds nextSound; // storage for the next sound in the queue
-	void playTone(unsigned int toneFrequency, byte beats); // a function from the Summer library
-	void playFreqGlissando( float freqFrom, float freqTo, float duty, float duration); // a function from the Summer library
+	void playTone(unsigned int toneFrequency, byte beats); // a function from the summer library
+	void playFreqGlissando( float freqFrom, float freqTo, float duty, float duration); // a function from the summer library
 public:
 	/*
 	 * Initializes the RobotVoice
@@ -29,7 +29,7 @@ public:
 	~RobotVoice();
 
 	/*
-	 * This function is called by the task scheduler each time the world ticks
+	 * This function is called by a task scheduler each time the world ticks
 	 */
 	virtual void processTask();
 

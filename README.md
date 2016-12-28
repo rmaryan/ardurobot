@@ -7,7 +7,9 @@ See the details at http://refunpro.blogspot.com/ (in Ukrainian)
 ## Hardware
 
 * Arduino Mega 2560
+* Motor Driver Shield V1
 * ESP13 Shield
+* Ultrasonic distance sensor HC-SR04
 * Tank chasis ([Geekcreit T300](http://www.banggood.com/DIY-DT300-WIFI-Double-Layer-Decker-Tracked-Model-Tank-Compatible-With-Arduino-UNO-R3-p-1079947.html?p=M908156347868201609Y) - can be any other)
 * Rechargeable Battery 6xAA 2500 mAh
 
@@ -22,6 +24,10 @@ See the details at http://refunpro.blogspot.com/ (in Ukrainian)
 *RobotAI.h/.cpp* - the core class which orchestrates all the robot actions (including scenarios execution and remote control over Wi-Fi)
 
 ### Robot modules
+
+*RobotDistanceSensor.h/.cpp* - class for accessing the ultrasonic distance sensor
+
+*RobotLights.h/.cpp* - class for controlling robot LED's
 
 *RobotMotors.h/.cpp* - class for controling chasis motors
 

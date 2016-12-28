@@ -15,8 +15,8 @@
  * This is a block which stores allocations of all Arduino pins used by different functions.
  * It is better to have this stored in a single place, rather than spreading it all over the code.
  */
-// PIN 0 used by Arduino programmer
-// PIN 1 used by Arduino programmer
+// PIN 0 used by Arduino USB port
+// PIN 1 used by Arduino USB port
 // PIN 2 FREE
 // PIN 3 used by the motor shield (drive 2)
 // PIN 4 used by the motor shield

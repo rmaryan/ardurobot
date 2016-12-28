@@ -10,6 +10,11 @@
 
 #include "TaskInterface.h"
 
+/*
+ * TODO To be completed
+ * This class takes care about the robot LED lighting
+ * All LED's are connected through the shift register
+ */
 class RobotLights: public TaskInterface {
 private:
 	uint8_t dataPin;

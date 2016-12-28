@@ -27,7 +27,7 @@ int8_t RobotDistanceSensor::getDistance()
 	long duration = pulseIn(echoPin, HIGH);
 
 	// for the infinity - return something big
-	if(duration == 0)
+	if((duration == 0)||(duration>2900))
 		return 100;
 	else
 		return round(duration /29 / 2);

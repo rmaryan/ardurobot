@@ -27,8 +27,9 @@ RobotAI::~RobotAI() {
 }
 
 void RobotAI::processTask() {
-	// this is an emergency
+	// this is an emergency - surface edge or other abyss detected
 	if (abyssDetectedFlag) {
+		//TODO Edge detection handling not implemented yet
 		robotMotors->fullStop();
 		robotVoice->queueSound(sndScared);
 		abyssDetectedFlag = false;
@@ -133,38 +134,79 @@ void RobotAI::processTask() {
 			// a simple wandering around mode, with the use of the distance sensor
 
 			if (reachedDeadline()) {
-				// obstacle detection distance (cm)
-				const uint8_t MIN_DISTANCE = 20;
-				uint8_t distance = robotDistanceSensor->getFrontDistance();
 
-				// get the front distance
-				// if not available yet - wait 300 ms
-				if(distance == -1) {
-					scheduleTimedTask(300);
-				} else {
+				switch (currentAIState) {
+				case stateAI_GO: {
+					// obstacle detection distance (cm)
+					int8_t distance = robotDistanceSensor->getFrontDistance();
 
-					// is there an obstacle in front of the robot?
-					if(distance < MIN_DISTANCE) {
-						robotMotors->fullStop();
-						robotVoice->queueSound(sndQuestion);
-
-						robotDistanceSensor->querySideDistances();
-
-						scheduleTimedTask(5000);
-
-						//TODO complete the collision avoidance code
-
-					} else {
-						robotMotors->driveForward(160, 200);
+					// get the front distance
+					// if not available yet - wait 300 ms
+					if(distance < 0) {
 						scheduleTimedTask(300);
+					} else {
+
+						// is there an obstacle in front of the robot?
+						if(distance < MIN_DISTANCE) {
+							robotMotors->fullStop();
+							robotVoice->queueSound(sndQuestion);
+
+							robotDistanceSensor->querySideDistances();
+
+							currentAIState = stateAI_QueryDistances;
+							scheduleTimedTask(3000);
+						} else {
+							robotMotors->driveForward(MOTOR_DRIVE_SPEED, 350);
+							scheduleTimedTask(300);
+						}
 					}
+					break;
+				}
+				case stateAI_QueryDistances: {
+					int8_t FLDistance = robotDistanceSensor->getLastFrontLeftDistance();
+					int8_t FRDistance = robotDistanceSensor->getLastFrontRightDistance();
+
+					Serial3.print("Left: ");
+					Serial3.print(FLDistance);
+					Serial3.print("; Right: ");
+					Serial3.println(FRDistance);
+
+					if((FLDistance == -1) || (FRDistance ==-1)) {
+						// something is wrong, try to measure the distance again
+						robotDistanceSensor->querySideDistances();
+						scheduleTimedTask(3000);
+					} else {
+						// need to turn right or left
+						if(FLDistance == FRDistance) {
+							// choose the direction randomly
+							if(millis() % 2 == 0) {
+								robotMotors->turnRight(MOTOR_TURN_SPEED, MOTOR_TURN_DURATION);
+							} else {
+								robotMotors->turnLeft(MOTOR_TURN_SPEED, MOTOR_TURN_DURATION);
+							}
+						} else
+							if(FLDistance < FRDistance) {
+								robotMotors->turnRight(MOTOR_TURN_SPEED, MOTOR_TURN_DURATION);
+							} else {
+								robotMotors->turnLeft(MOTOR_TURN_SPEED, MOTOR_TURN_DURATION);
+							}
+						currentAIState = stateAI_Turning;
+						scheduleTimedTask(MOTOR_TURN_DURATION);
+					}
+					break;
+				}
+				case stateAI_Turning:
+					// turning has been finished time to GO
+					currentAIState = stateAI_GO;
+					break;
 				}
 			}
 		}
 	}
 }
 
-void RobotAI::abyssDetected() {
-	// triggered when table edge or other abyss is detected
-	abyssDetectedFlag = true;
-}
+//TODO edge detection to be implemented
+//void RobotAI::abyssDetected() {
+//	// triggered when table edge or other abyss is detected
+//	abyssDetectedFlag = true;
+//}

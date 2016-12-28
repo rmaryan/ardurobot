@@ -23,6 +23,17 @@ enum AIModes {
 };
 
 /*
+ * The list of the AI states - they are used in "modAI" mode only.
+ * modAI_GO - go forward until an obstacle detected
+ * modAI_QueryDistances - waiting until the side distances are measured
+ * modAI_Turning - turning to the new course
+ */
+enum AIStates {
+	stateAI_GO, stateAI_QueryDistances, stateAI_Turning
+};
+
+
+/*
  * Possible actions which can be taken by the AI
  * W - wait
  * MF - motors forward
@@ -53,7 +64,14 @@ private:
 	RobotVoice* robotVoice;
 	uint8_t abyssPin;
 
+	// AI modes states and parameters
 	AIModes currentAIMode = modAI;
+	AIStates currentAIState = stateAI_GO;
+	static const uint8_t MIN_DISTANCE = 20; // the minimum acceptable distance in front (cm)
+	static const uint8_t MOTOR_DRIVE_SPEED = 180;
+	static const uint8_t MOTOR_TURN_SPEED = 180;
+	static const uint16_t MOTOR_TURN_DURATION = 1200;
+
 	volatile bool abyssDetectedFlag = false; // is set to true if the abyss detection interrupt is caused
 	uint8_t currentScriptLine = 0;
 
@@ -73,7 +91,8 @@ private:
 
 	};
 
-	void abyssDetected();
+	//TODO Edge detection to be implemented
+	//void abyssDetected();
 
 public:
 	/*

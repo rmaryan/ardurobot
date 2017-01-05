@@ -166,11 +166,6 @@ void RobotAI::processTask() {
 					int8_t FLDistance = robotDistanceSensor->getLastFrontLeftDistance();
 					int8_t FRDistance = robotDistanceSensor->getLastFrontRightDistance();
 
-					Serial3.print("Left: ");
-					Serial3.print(FLDistance);
-					Serial3.print("; Right: ");
-					Serial3.println(FRDistance);
-
 					if((FLDistance == -1) || (FRDistance ==-1)) {
 						// something is wrong, try to measure the distance again
 						robotDistanceSensor->querySideDistances();

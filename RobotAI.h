@@ -62,7 +62,9 @@ private:
 	RobotDistanceSensor* robotDistanceSensor;
 	RobotLights* robotLights;
 	RobotVoice* robotVoice;
-	uint8_t abyssPin;
+
+	// when this flag is true - abyss was detected but the case was not handled yet
+	bool abyssDetectedProcessing = false;
 
 	// AI modes states and parameters
 	AIModes currentAIMode = modAI;
@@ -72,9 +74,7 @@ private:
 	static const uint8_t MOTOR_TURN_SPEED = 180;
 	static const uint16_t MOTOR_TURN_DURATION = 1200;
 
-	volatile bool abyssDetectedFlag = false; // is set to true if the abyss detection interrupt is caused
 	uint8_t currentScriptLine = 0;
-
 	/*
 	 * Definition of some simple scenario to be followed by the robot in autonomous mode.
 	 * Robot will perform this script after being switched on, then will stop and idle forever
@@ -91,15 +91,16 @@ private:
 
 	};
 
-	//TODO Edge detection to be implemented
-	//void abyssDetected();
-
 public:
+	// the value of true is pushed to this variable by the external interrupt handler if the sensors
+	// detect abyss in front of the robot
+	volatile bool abyssDetectedFlag = false;
+
 	/*
 	 * Robot AI constructor initializes the AI and stores the references to other robot modules.
 	 */
 	RobotAI(RobotMotors* in_robotMotors, RobotDistanceSensor* in_robotDistanceSensor, RobotLights* in_robotLights,
-			RobotVoice* in_robotVoice, uint8_t in_abyssPin);
+			RobotVoice* in_robotVoice);
 
 	/*
 	 * Cease all AI activities gracefully

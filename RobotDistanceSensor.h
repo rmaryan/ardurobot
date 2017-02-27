@@ -19,9 +19,9 @@ enum DSStates {
 class RobotDistanceSensor: public TaskInterface {
 private:
 	// angle positions of the sensor servo for different directions
-	static const uint8_t F_POS = 90;
-	static const uint8_t FL_POS = 140;
-	static const uint8_t FR_POS = 40;
+	static const uint8_t F_POS = 85; // adjust this value to make the head look straight
+	static const uint8_t FL_POS = F_POS+50;
+	static const uint8_t FR_POS = F_POS-50;
 
 	// the time for servo in ms to turn the head by 45 degree
 	// minimum is ~100 ms (from the servo specs: Operating Speed (4.8V no load): 0.12sec/60 degrees)
@@ -36,6 +36,9 @@ private:
 
 	uint8_t triggerPin;
 	uint8_t echoPin;
+
+	uint8_t abyssLeftPin;
+	uint8_t abyssRightPin;
 
 	Servo usServo;
 
@@ -52,7 +55,7 @@ private:
 	int8_t getDistance();
 
 public:
-	RobotDistanceSensor(uint8_t in_servoPin, uint8_t in_triggerPin, uint8_t in_echoPin);
+	RobotDistanceSensor(uint8_t in_servoPin, uint8_t in_triggerPin, uint8_t in_echoPin, uint8_t in_abyssLeftPin, uint8_t in_abyssRightPin);
 	virtual ~RobotDistanceSensor();
 
 	/*
@@ -85,6 +88,11 @@ public:
 	  * this work can take up to 500 ms
 	  */
 	void querySideDistances();
+
+	// Abyss detection sensors query block
+	// true is returned if abyss is detected
+	bool getFrontLeftAbyssDetected();
+	bool getFrontRightAbyssDetected();
 };
 
 #endif //#ifndef RobotDistanceSensor_h

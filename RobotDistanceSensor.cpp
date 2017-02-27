@@ -1,6 +1,6 @@
 #include "RobotDistanceSensor.h"
 
-RobotDistanceSensor::RobotDistanceSensor(uint8_t in_servoPin, uint8_t in_triggerPin, uint8_t in_echoPin)
+RobotDistanceSensor::RobotDistanceSensor(uint8_t in_servoPin, uint8_t in_triggerPin, uint8_t in_echoPin, uint8_t in_abyssLeftPin, uint8_t in_abyssRightPin)
 {
 	triggerPin=in_triggerPin;
 	echoPin=in_echoPin;
@@ -10,6 +10,10 @@ RobotDistanceSensor::RobotDistanceSensor(uint8_t in_servoPin, uint8_t in_trigger
 	usServo.attach(in_servoPin);
 	// make sure we are ready for the front distance measurements
 	usServo.write(F_POS);
+
+	abyssLeftPin = in_abyssLeftPin;
+	abyssRightPin = in_abyssRightPin;
+
 }
 
 RobotDistanceSensor::~RobotDistanceSensor() {
@@ -67,13 +71,10 @@ void RobotDistanceSensor::querySideDistances() {
 	lastFLDistance = -1;
 	lastFRDistance = -1;
 
-	// wait till servo will finish turning
-	// it will take from SERVO_DELAY to 2*SERVO_DELAY
-	uint16_t servoDelay = (usServo.read()>F_POS) ? 2*SERVO_DELAY : SERVO_DELAY;
-
 	usServo.write(FR_POS);
 
-	scheduleTimedTask(servoDelay);
+	// wait till servo will finish turning
+	scheduleTimedTask(SERVO_DELAY);
 }
 
 
@@ -103,7 +104,7 @@ void RobotDistanceSensor::processTask() {
 				break;
 			case dsMeasuringFF:
 				// the servo finished turning
-				// measure the distance and wait for the validity period
+				// measure the distance and set the timestamp
 				lastFDistance = getDistance();
 				lastFDistanceTimeStamp = millis();
 				dsState = dsIdle;
@@ -111,4 +112,12 @@ void RobotDistanceSensor::processTask() {
 			}
 		}
 	}
+}
+
+bool RobotDistanceSensor::getFrontLeftAbyssDetected() {
+	return digitalRead(abyssLeftPin);
+}
+
+bool RobotDistanceSensor::getFrontRightAbyssDetected() {
+	return digitalRead(abyssRightPin);
 }

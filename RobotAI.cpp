@@ -29,8 +29,7 @@ void RobotAI::processTask() {
 		// remove out extra abyss detection
 		if(!abyssDetectedProcessing) {
 			// check if the sensors really can't see the floor
-			if(robotDistanceSensor->getFrontLeftAbyssDetected()||
-					robotDistanceSensor->getFrontRightAbyssDetected()) {
+			if(robotDistanceSensor->getFrontAbyssDetected()) {
 				robotMotors->fullStop();
 				robotVoice->queueSound(sndScared);
 				abyssDetectedProcessing = true;
@@ -68,6 +67,7 @@ void RobotAI::processTask() {
 
 	switch (currentAIMode) {
 	case modIdle:
+		abyssDetectedProcessing = false;
 		break; //do nothing
 	case modRemoteControl: {
 		if(abyssDetectedProcessing) {
@@ -102,6 +102,7 @@ void RobotAI::processTask() {
 		// if abyss detected - just stop
 		if(abyssDetectedProcessing) {
 			currentAIMode = modIdle;
+			abyssDetectedProcessing = false;
 		} else {
 			if (reachedDeadline()) {
 				//get the next command from the script
@@ -150,32 +151,43 @@ void RobotAI::processTask() {
 		break;
 	case modAI:
 		// a simple wandering around mode, with the use of the distance sensor
-
 		if (reachedDeadline()) {
 
 			switch (currentAIState) {
 			case stateAI_GO: {
-				// obstacle detection distance (cm)
-				int8_t distance = robotDistanceSensor->getFrontDistance();
-
-				// get the front distance
-				// if not available yet - wait 300 ms
-				if(distance < 0) {
-					scheduleTimedTask(300);
+				// check for abyss
+				if(abyssDetectedProcessing) {
+					// if abyss detected - stop, go backward, then turn according to the distances
+					robotMotors->fullStop();
+					robotMotors->driveBackward(MOTOR_DRIVE_SPEED, 500);
+					scheduleTimedTask(700);
+					currentAIState = stateAI_QueryDistances;
 				} else {
+					// obstacle detection distance (cm)
+					int8_t distance = robotDistanceSensor->getFrontDistance();
 
-					// is there an obstacle in front of the robot?
-					if(distance < MIN_DISTANCE) {
-						robotMotors->fullStop();
-						robotVoice->queueSound(sndQuestion);
-
-						robotDistanceSensor->querySideDistances();
-
-						currentAIState = stateAI_QueryDistances;
-						scheduleTimedTask(3000);
-					} else {
-						robotMotors->driveForward(MOTOR_DRIVE_SPEED, 350);
+					// get the front distance
+					// if not available yet - wait 300 ms
+					if(distance < 0) {
 						scheduleTimedTask(300);
+					} else {
+
+						// is there an obstacle in front of the robot?
+						if(distance < MIN_DISTANCE) {
+							robotMotors->fullStop();
+							robotVoice->queueSound(sndQuestion);
+
+							robotDistanceSensor->querySideDistances();
+
+							currentAIState = stateAI_QueryDistances;
+							scheduleTimedTask(3000);
+						} else {
+							// the road is clear, just double check for abyss againt to be sure
+							if(!robotDistanceSensor->getFrontAbyssDetected()) {
+								robotMotors->driveForward(MOTOR_DRIVE_SPEED, 350);
+								scheduleTimedTask(300);
+							}
+						}
 					}
 				}
 				break;
@@ -184,32 +196,38 @@ void RobotAI::processTask() {
 				int8_t FLDistance = robotDistanceSensor->getLastFrontLeftDistance();
 				int8_t FRDistance = robotDistanceSensor->getLastFrontRightDistance();
 
-				Serial3.print("Left: ");
-				Serial3.print(FLDistance);
-				Serial3.print("; Right: ");
-				Serial3.println(FRDistance);
-
 				if((FLDistance == -1) || (FRDistance ==-1)) {
 					// something is wrong, try to measure the distance again
 					robotDistanceSensor->querySideDistances();
 					scheduleTimedTask(3000);
 				} else {
-					// need to turn right or left
-					if(FLDistance == FRDistance) {
-						// choose the direction randomly
-						if(millis() % 2 == 0) {
-							robotMotors->turnRight(MOTOR_TURN_SPEED, MOTOR_TURN_DURATION);
-						} else {
-							robotMotors->turnLeft(MOTOR_TURN_SPEED, MOTOR_TURN_DURATION);
-						}
-					} else
-						if(FLDistance < FRDistance) {
-							robotMotors->turnRight(MOTOR_TURN_SPEED, MOTOR_TURN_DURATION);
-						} else {
-							robotMotors->turnLeft(MOTOR_TURN_SPEED, MOTOR_TURN_DURATION);
-						}
-					currentAIState = stateAI_Turning;
-					scheduleTimedTask(MOTOR_TURN_DURATION);
+					// we assume we already escaped the abyss
+					// if not - it may be dangerous to move backward again
+					// START PANICKING!!!
+					if(robotDistanceSensor->getFrontAbyssDetected()) {
+						robotVoice->queueSound(sndScared);
+						scheduleTimedTask(2000);
+					} else {
+						abyssDetectedProcessing = false;
+
+						// need to turn right or left
+						if(FLDistance == FRDistance) {
+							// choose the direction randomly
+							if(millis() % 2 == 0) {
+								robotMotors->turnRight(MOTOR_TURN_SPEED, MOTOR_TURN_DURATION);
+							} else {
+								robotMotors->turnLeft(MOTOR_TURN_SPEED, MOTOR_TURN_DURATION);
+							}
+						} else
+							if(FLDistance < FRDistance) {
+								robotMotors->turnRight(MOTOR_TURN_SPEED, MOTOR_TURN_DURATION);
+							} else {
+								robotMotors->turnLeft(MOTOR_TURN_SPEED, MOTOR_TURN_DURATION);
+							}
+						currentAIState = stateAI_Turning;
+
+						scheduleTimedTask(MOTOR_TURN_DURATION);
+					}
 				}
 				break;
 			}

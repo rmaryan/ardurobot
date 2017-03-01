@@ -34,6 +34,8 @@ const uint8_t ABYSS_RIGHT_PIN = 20; // IR sensor abyss detection right side
 const uint8_t ABYSS_LEFT_PIN = 21;  // IR sensor abyss detection left side
 const uint8_t US_ECHO_PIN = 22; // ultrasonic sensor echo pin
 const uint8_t US_TRG_PIN = 23;  // ultrasonic sensor trigger pin
+const uint8_t IR_FRONT_LEFT_PIN = 53;  // infrared obstacle detector
+const uint8_t IR_FRONT_RIGHT_PIN = 54;  // infrared obstacle detector
 
 const uint8_t LED_DATA_PIN = 100; //TODO assign a real pin
 const uint8_t LED_SYNC_PIN = 100; //TODO assign a real pin
@@ -66,7 +68,8 @@ void setup() {
 
 	// Define the entities which have own time slice in the main loop (tasks)
 	motors = new RobotMotors();
-	robotDistanceSensor = new RobotDistanceSensor(US_SERVO_PIN, US_TRG_PIN, US_ECHO_PIN, ABYSS_LEFT_PIN, ABYSS_RIGHT_PIN);
+	robotDistanceSensor = new RobotDistanceSensor(US_SERVO_PIN, US_TRG_PIN, US_ECHO_PIN,
+			ABYSS_LEFT_PIN, ABYSS_RIGHT_PIN, IR_FRONT_LEFT_PIN, IR_FRONT_RIGHT_PIN);
 	robotLights = new RobotLights(LED_DATA_PIN, LED_SYNC_PIN, LED_LATCH_PIN);
 	robotVoice = new RobotVoice(VOICE_PIN);
 	robotAI = new RobotAI(motors, robotDistanceSensor, robotLights, robotVoice);

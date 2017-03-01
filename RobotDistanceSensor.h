@@ -39,6 +39,8 @@ private:
 
 	uint8_t abyssLeftPin;
 	uint8_t abyssRightPin;
+	uint8_t irFrontLeftPin;
+	uint8_t irFrontRightPin;
 
 	Servo usServo;
 
@@ -55,7 +57,8 @@ private:
 	int8_t getDistance();
 
 public:
-	RobotDistanceSensor(uint8_t in_servoPin, uint8_t in_triggerPin, uint8_t in_echoPin, uint8_t in_abyssLeftPin, uint8_t in_abyssRightPin);
+	RobotDistanceSensor(uint8_t in_servoPin, uint8_t in_triggerPin, uint8_t in_echoPin,
+			uint8_t in_abyssLeftPin, uint8_t in_abyssRightPin, uint8_t in_IRFrontLeftPin, uint8_t in_IRFrontRightPin);
 	virtual ~RobotDistanceSensor();
 
 	/*
@@ -89,8 +92,13 @@ public:
 	  */
 	void querySideDistances();
 
+	// Front obstacle detectors getters
+	bool getFrontLeftIRDetected();
+	bool getFrontRightIRDetected();
+
 	// Abyss detection sensors query block
 	// true is returned if abyss is detected
+	bool getFrontAbyssDetected();
 	bool getFrontLeftAbyssDetected();
 	bool getFrontRightAbyssDetected();
 };

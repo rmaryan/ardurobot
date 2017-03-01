@@ -1,6 +1,7 @@
 #include "RobotDistanceSensor.h"
 
-RobotDistanceSensor::RobotDistanceSensor(uint8_t in_servoPin, uint8_t in_triggerPin, uint8_t in_echoPin, uint8_t in_abyssLeftPin, uint8_t in_abyssRightPin)
+RobotDistanceSensor::RobotDistanceSensor(uint8_t in_servoPin, uint8_t in_triggerPin, uint8_t in_echoPin,
+		uint8_t in_abyssLeftPin, uint8_t in_abyssRightPin, uint8_t in_IRFrontLeftPin, uint8_t in_IRFrontRightPin)
 {
 	triggerPin=in_triggerPin;
 	echoPin=in_echoPin;
@@ -13,7 +14,8 @@ RobotDistanceSensor::RobotDistanceSensor(uint8_t in_servoPin, uint8_t in_trigger
 
 	abyssLeftPin = in_abyssLeftPin;
 	abyssRightPin = in_abyssRightPin;
-
+	irFrontLeftPin = in_IRFrontLeftPin;
+	irFrontRightPin = in_IRFrontRightPin;
 }
 
 RobotDistanceSensor::~RobotDistanceSensor() {
@@ -77,7 +79,6 @@ void RobotDistanceSensor::querySideDistances() {
 	scheduleTimedTask(SERVO_DELAY);
 }
 
-
 void RobotDistanceSensor::processTask() {
 	if(dsState != dsIdle) {
 		if (reachedDeadline()) {
@@ -112,6 +113,18 @@ void RobotDistanceSensor::processTask() {
 			}
 		}
 	}
+}
+
+bool RobotDistanceSensor::getFrontLeftIRDetected() {
+	return digitalRead(irFrontLeftPin);
+}
+
+bool RobotDistanceSensor::getFrontRightIRDetected() {
+	return digitalRead(irFrontRightPin);
+}
+
+bool RobotDistanceSensor::getFrontAbyssDetected() {
+	return digitalRead(abyssLeftPin) || digitalRead(abyssRightPin);
 }
 
 bool RobotDistanceSensor::getFrontLeftAbyssDetected() {

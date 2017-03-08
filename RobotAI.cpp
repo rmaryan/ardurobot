@@ -159,44 +159,37 @@ void RobotAI::processTask() {
 				if(abyssDetectedProcessing) {
 					// if abyss detected - stop, go backward, then turn according to the distances
 					robotMotors->fullStop();
-					robotMotors->driveBackward(MOTOR_DRIVE_SPEED, 500);
-					scheduleTimedTask(700);
+					robotMotors->driveBackward(MOTOR_DRIVE_SPEED, 900);
+					scheduleTimedTask(1000);
 					currentAIState = stateAI_QueryDistances;
 				} else {
-					// obstacle detection distance (cm)
-					int8_t distance = robotDistanceSensor->getFrontDistance();
-
-					// get the front distance
-					// if not available yet - wait 300 ms
-					if(distance < 0) {
+					FrontObstacleStatus frontObstacleStatus = robotDistanceSensor->isObstacleInFront();
+					if(frontObstacleStatus == foUNKNOWN) {
+						// can't measure the distance as for now
+						// wait a little
 						scheduleTimedTask(300);
+					} else
+					if(frontObstacleStatus == foOBSTACLE) {
+						robotMotors->fullStop();
+						robotVoice->queueSound(sndQuestion);
+						robotDistanceSensor->querySideDistances();
+
+						currentAIState = stateAI_QueryDistances;
+						scheduleTimedTask(3000);
 					} else {
-
-						// is there an obstacle in front of the robot?
-						if(distance < MIN_DISTANCE) {
-							robotMotors->fullStop();
-							robotVoice->queueSound(sndQuestion);
-
-							robotDistanceSensor->querySideDistances();
-
-							currentAIState = stateAI_QueryDistances;
-							scheduleTimedTask(3000);
-						} else {
-							// the road is clear, just double check for abyss againt to be sure
-							if(!robotDistanceSensor->getFrontAbyssDetected()) {
-								robotMotors->driveForward(MOTOR_DRIVE_SPEED, 350);
-								scheduleTimedTask(300);
-							}
-						}
+						// the road is clear - go ahead!
+						robotMotors->driveForward(MOTOR_DRIVE_SPEED, 350);
+						scheduleTimedTask(300);
 					}
 				}
 				break;
 			}
 			case stateAI_QueryDistances: {
-				int8_t FLDistance = robotDistanceSensor->getLastFrontLeftDistance();
-				int8_t FRDistance = robotDistanceSensor->getLastFrontRightDistance();
 
-				if((FLDistance == -1) || (FRDistance ==-1)) {
+				ObstacleDirections obstacleDirection = robotDistanceSensor->getObstacleDirection();
+
+
+				if(obstacleDirection == odUNKNOWN) {
 					// something is wrong, try to measure the distance again
 					robotDistanceSensor->querySideDistances();
 					scheduleTimedTask(3000);
@@ -211,7 +204,7 @@ void RobotAI::processTask() {
 						abyssDetectedProcessing = false;
 
 						// need to turn right or left
-						if(FLDistance == FRDistance) {
+						if(obstacleDirection == odBOTH) {
 							// choose the direction randomly
 							if(millis() % 2 == 0) {
 								robotMotors->turnRight(MOTOR_TURN_SPEED, MOTOR_TURN_DURATION);
@@ -219,7 +212,7 @@ void RobotAI::processTask() {
 								robotMotors->turnLeft(MOTOR_TURN_SPEED, MOTOR_TURN_DURATION);
 							}
 						} else
-							if(FLDistance < FRDistance) {
+							if(obstacleDirection == odLEFT) {
 								robotMotors->turnRight(MOTOR_TURN_SPEED, MOTOR_TURN_DURATION);
 							} else {
 								robotMotors->turnLeft(MOTOR_TURN_SPEED, MOTOR_TURN_DURATION);

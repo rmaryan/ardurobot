@@ -16,6 +16,11 @@ RobotDistanceSensor::RobotDistanceSensor(uint8_t in_servoPin, uint8_t in_trigger
 	abyssRightPin = in_abyssRightPin;
 	irFrontLeftPin = in_IRFrontLeftPin;
 	irFrontRightPin = in_IRFrontRightPin;
+
+	pinMode(abyssLeftPin, INPUT);
+	pinMode(abyssRightPin, INPUT);
+	pinMode(irFrontLeftPin, INPUT);
+	pinMode(irFrontRightPin, INPUT);
 }
 
 RobotDistanceSensor::~RobotDistanceSensor() {
@@ -115,12 +120,81 @@ void RobotDistanceSensor::processTask() {
 	}
 }
 
+FrontObstacleStatus RobotDistanceSensor::isObstacleInFront() {
+	// the front IR sensors are the fastest and the easiest to access
+	if(getFrontLeftIRDetected() || getFrontRightIRDetected()) {
+		return foOBSTACLE;
+	} else {
+		int8_t frontUSDistance = getFrontDistance();
+		if(frontUSDistance == -1) {
+			return foUNKNOWN;
+		} else {
+			if(frontUSDistance < MIN_DISTANCE) {
+				return foOBSTACLE;
+			}
+		}
+	}
+	return foFREE;
+}
+
+ObstacleDirections RobotDistanceSensor::getObstacleDirection() {
+	// check the abyss detectors first
+	bool leftFlag = getFrontLeftAbyssDetected();
+	bool rightFlag = getFrontRightAbyssDetected();
+
+	if(leftFlag) {
+		if(rightFlag) {
+			return odBOTH;
+		} else {
+			return odLEFT;
+		}
+	} else {
+		if(rightFlag) {
+			return odRIGHT;
+		}
+	}
+
+	// check IR sensors
+	leftFlag = getFrontLeftIRDetected();
+	rightFlag = getFrontRightIRDetected();
+
+	if(leftFlag) {
+		if(rightFlag) {
+			return odBOTH;
+		} else {
+			return odLEFT;
+		}
+	} else {
+		if(rightFlag) {
+			return odRIGHT;
+		}
+	}
+
+	// check ultrasonic values now
+	if((lastFLDistance == -1) || (lastFRDistance ==-1)) {
+		// something is wrong, try to measure the distance again
+		return odUNKNOWN;
+	} else {
+		if(lastFLDistance == lastFRDistance) {
+			return odBOTH;
+		} else {
+			if(lastFLDistance < lastFRDistance) {
+				return odLEFT;
+			} else {
+				return odRIGHT;
+			}
+		}
+	}
+
+	return odNONE;
+}
+
 bool RobotDistanceSensor::getFrontLeftIRDetected() {
-	return digitalRead(irFrontLeftPin);
+	return !digitalRead(irFrontLeftPin);
 }
 
 bool RobotDistanceSensor::getFrontRightIRDetected() {
-	return digitalRead(irFrontRightPin);
+	return !digitalRead(irFrontRightPin);
 }
 
 bool RobotDistanceSensor::getFrontAbyssDetected() {

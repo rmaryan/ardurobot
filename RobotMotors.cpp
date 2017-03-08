@@ -34,11 +34,11 @@ void RobotMotors::driveBackward(uint8_t speed, uint16_t duration) {
 
 
 void RobotMotors::turnRight(uint8_t speed, uint16_t duration) {
-	runDrives(speed, duration, FORWARD, BACKWARD);
+	runDrives(speed, duration, RELEASE, BACKWARD);
 }
 
 void RobotMotors::turnLeft(uint8_t speed, uint16_t duration) {
-	runDrives(speed, duration, BACKWARD, FORWARD);
+	runDrives(speed, duration, BACKWARD, RELEASE);
 }
 
 void RobotMotors::runDrives(uint8_t speed, uint16_t duration,

@@ -69,7 +69,6 @@ private:
 	// AI modes states and parameters
 	AIModes currentAIMode = modAI;
 	AIStates currentAIState = stateAI_GO;
-	static const uint8_t MIN_DISTANCE = 20; // the minimum acceptable distance in front (cm)
 	static const uint8_t MOTOR_DRIVE_SPEED = 180;
 	static const uint8_t MOTOR_TURN_SPEED = 180;
 	static const uint16_t MOTOR_TURN_DURATION = 1200;

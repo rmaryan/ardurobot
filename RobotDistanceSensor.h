@@ -16,12 +16,32 @@ enum DSStates {
 	dsIdle, dsMeasuringFR, dsMeasuringFL, dsMeasuringFF
 };
 
+/*
+ * Possible return values of the front obstacle detection
+ */
+enum FrontObstacleStatus {
+	foUNKNOWN,  // impossible to detect as for now
+	foOBSTACLE, // obstacle (or abyss) detected
+	foFREE      // the road is free
+};
+
+/*
+ * Possible obstacle positions
+ */
+enum ObstacleDirections {
+	odUNKNOWN, // impossible to detect as for now
+	odRIGHT, // obstacle is to the right
+	odLEFT,  // obstacle is to the left
+	odBOTH,  // obstacle is precisely in front
+	odNONE   // no obstacle detected
+};
+
 class RobotDistanceSensor: public TaskInterface {
 private:
 	// angle positions of the sensor servo for different directions
-	static const uint8_t F_POS = 90;
-	static const uint8_t FL_POS = 140;
-	static const uint8_t FR_POS = 40;
+	static const uint8_t F_POS = 85; // adjust this value to make the head look straight
+	static const uint8_t FL_POS = F_POS+50;
+	static const uint8_t FR_POS = F_POS-50;
 
 	// the time for servo in ms to turn the head by 45 degree
 	// minimum is ~100 ms (from the servo specs: Operating Speed (4.8V no load): 0.12sec/60 degrees)
@@ -31,11 +51,19 @@ private:
 	// do not bother the sensor more frequently than once per 200 ms
 	static const uint16_t FRONT_MEASURE_VALIDITY = 200;
 
+	// the minimum acceptable distance in front (cm)
+	static const uint8_t MIN_DISTANCE = 20;
+
 	// the sensors state
 	DSStates dsState = dsIdle;
 
 	uint8_t triggerPin;
 	uint8_t echoPin;
+
+	uint8_t abyssLeftPin;
+	uint8_t abyssRightPin;
+	uint8_t irFrontLeftPin;
+	uint8_t irFrontRightPin;
 
 	Servo usServo;
 
@@ -52,7 +80,8 @@ private:
 	int8_t getDistance();
 
 public:
-	RobotDistanceSensor(uint8_t in_servoPin, uint8_t in_triggerPin, uint8_t in_echoPin);
+	RobotDistanceSensor(uint8_t in_servoPin, uint8_t in_triggerPin, uint8_t in_echoPin,
+			uint8_t in_abyssLeftPin, uint8_t in_abyssRightPin, uint8_t in_IRFrontLeftPin, uint8_t in_IRFrontRightPin);
 	virtual ~RobotDistanceSensor();
 
 	/*
@@ -63,6 +92,16 @@ public:
 	 */
 	virtual void processTask();
 
+	/*
+	 * Returns true if at least one sensor detected an obstacle or abyss
+	 * in front of the robot
+	 */
+	FrontObstacleStatus isObstacleInFront();
+
+	/*
+	 * Returns the direction where an obstacle was detected
+	 */
+	ObstacleDirections getObstacleDirection();
 
 	/*
 	 * Return a distance in front of the robot.
@@ -75,16 +114,26 @@ public:
 	 * These two methods return the distances if they are available or -1 if not.
 	 * Front-Right and Front-Left distances are not measured instantly.
 	 * Cast querySideDistances() to refresh them.
-	*/
+	 */
 	int8_t getLastFrontLeftDistance();
 	int8_t getLastFrontRightDistance();
 
-	 /*
-	  * Initiate the measurement of the side distances (front-left and front-rihgt)
-	  * this method performs a sequence of actions on turning the head and measuring the distances
-	  * this work can take up to 500 ms
-	  */
+	/*
+	 * Initiate the measurement of the side distances (front-left and front-rihgt)
+	 * this method performs a sequence of actions on turning the head and measuring the distances
+	 * this work can take up to 500 ms
+	 */
 	void querySideDistances();
+
+	// Front obstacle detectors getters
+	bool getFrontLeftIRDetected();
+	bool getFrontRightIRDetected();
+
+	// Abyss detection sensors query block
+	// true is returned if abyss is detected
+	bool getFrontAbyssDetected();
+	bool getFrontLeftAbyssDetected();
+	bool getFrontRightAbyssDetected();
 };
 
 #endif //#ifndef RobotDistanceSensor_h

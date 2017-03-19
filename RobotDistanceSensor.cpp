@@ -1,6 +1,7 @@
 #include "RobotDistanceSensor.h"
 
-RobotDistanceSensor::RobotDistanceSensor(uint8_t in_servoPin, uint8_t in_triggerPin, uint8_t in_echoPin)
+RobotDistanceSensor::RobotDistanceSensor(uint8_t in_servoPin, uint8_t in_triggerPin, uint8_t in_echoPin,
+		uint8_t in_abyssLeftPin, uint8_t in_abyssRightPin, uint8_t in_IRFrontLeftPin, uint8_t in_IRFrontRightPin)
 {
 	triggerPin=in_triggerPin;
 	echoPin=in_echoPin;
@@ -10,6 +11,16 @@ RobotDistanceSensor::RobotDistanceSensor(uint8_t in_servoPin, uint8_t in_trigger
 	usServo.attach(in_servoPin);
 	// make sure we are ready for the front distance measurements
 	usServo.write(F_POS);
+
+	abyssLeftPin = in_abyssLeftPin;
+	abyssRightPin = in_abyssRightPin;
+	irFrontLeftPin = in_IRFrontLeftPin;
+	irFrontRightPin = in_IRFrontRightPin;
+
+	pinMode(abyssLeftPin, INPUT);
+	pinMode(abyssRightPin, INPUT);
+	pinMode(irFrontLeftPin, INPUT);
+	pinMode(irFrontRightPin, INPUT);
 }
 
 RobotDistanceSensor::~RobotDistanceSensor() {
@@ -67,15 +78,11 @@ void RobotDistanceSensor::querySideDistances() {
 	lastFLDistance = -1;
 	lastFRDistance = -1;
 
-	// wait till servo will finish turning
-	// it will take from SERVO_DELAY to 2*SERVO_DELAY
-	uint16_t servoDelay = (usServo.read()>F_POS) ? 2*SERVO_DELAY : SERVO_DELAY;
-
 	usServo.write(FR_POS);
 
-	scheduleTimedTask(servoDelay);
+	// wait till servo will finish turning
+	scheduleTimedTask(SERVO_DELAY);
 }
-
 
 void RobotDistanceSensor::processTask() {
 	if(dsState != dsIdle) {
@@ -103,7 +110,7 @@ void RobotDistanceSensor::processTask() {
 				break;
 			case dsMeasuringFF:
 				// the servo finished turning
-				// measure the distance and wait for the validity period
+				// measure the distance and set the timestamp
 				lastFDistance = getDistance();
 				lastFDistanceTimeStamp = millis();
 				dsState = dsIdle;
@@ -111,4 +118,93 @@ void RobotDistanceSensor::processTask() {
 			}
 		}
 	}
+}
+
+FrontObstacleStatus RobotDistanceSensor::isObstacleInFront() {
+	// the front IR sensors are the fastest and the easiest to access
+	if(getFrontLeftIRDetected() || getFrontRightIRDetected()) {
+		return foOBSTACLE;
+	} else {
+		int8_t frontUSDistance = getFrontDistance();
+		if(frontUSDistance == -1) {
+			return foUNKNOWN;
+		} else {
+			if(frontUSDistance < MIN_DISTANCE) {
+				return foOBSTACLE;
+			}
+		}
+	}
+	return foFREE;
+}
+
+ObstacleDirections RobotDistanceSensor::getObstacleDirection() {
+	// check the abyss detectors first
+	bool leftFlag = getFrontLeftAbyssDetected();
+	bool rightFlag = getFrontRightAbyssDetected();
+
+	if(leftFlag) {
+		if(rightFlag) {
+			return odBOTH;
+		} else {
+			return odLEFT;
+		}
+	} else {
+		if(rightFlag) {
+			return odRIGHT;
+		}
+	}
+
+	// check IR sensors
+	leftFlag = getFrontLeftIRDetected();
+	rightFlag = getFrontRightIRDetected();
+
+	if(leftFlag) {
+		if(rightFlag) {
+			return odBOTH;
+		} else {
+			return odLEFT;
+		}
+	} else {
+		if(rightFlag) {
+			return odRIGHT;
+		}
+	}
+
+	// check ultrasonic values now
+	if((lastFLDistance == -1) || (lastFRDistance ==-1)) {
+		// something is wrong, try to measure the distance again
+		return odUNKNOWN;
+	} else {
+		if(lastFLDistance == lastFRDistance) {
+			return odBOTH;
+		} else {
+			if(lastFLDistance < lastFRDistance) {
+				return odLEFT;
+			} else {
+				return odRIGHT;
+			}
+		}
+	}
+
+	return odNONE;
+}
+
+bool RobotDistanceSensor::getFrontLeftIRDetected() {
+	return !digitalRead(irFrontLeftPin);
+}
+
+bool RobotDistanceSensor::getFrontRightIRDetected() {
+	return !digitalRead(irFrontRightPin);
+}
+
+bool RobotDistanceSensor::getFrontAbyssDetected() {
+	return digitalRead(abyssLeftPin) || digitalRead(abyssRightPin);
+}
+
+bool RobotDistanceSensor::getFrontLeftAbyssDetected() {
+	return digitalRead(abyssLeftPin);
+}
+
+bool RobotDistanceSensor::getFrontRightAbyssDetected() {
+	return digitalRead(abyssRightPin);
 }

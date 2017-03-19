@@ -6,11 +6,13 @@ See the details at http://refunpro.blogspot.com/ (in Ukrainian)
 
 ## Hardware
 
-* Arduino Mega 2560
-* Motor Driver Shield V1
-* ESP13 Shield
-* Ultrasonic distance sensor HC-SR04
-* Tank chasis ([Geekcreit T300](http://www.banggood.com/DIY-DT300-WIFI-Double-Layer-Decker-Tracked-Model-Tank-Compatible-With-Arduino-UNO-R3-p-1079947.html?p=M908156347868201609Y) - can be any other)
+* [Arduino Mega 2560](http://www.banggood.com/Mega2560-R3-ATmega2560-16AU-Control-Board-With-USB-Cable-For-Arduino-p-73020.html?p=M908156347868201609Y)
+* [Motor Driver Shield V1](http://www.banggood.com/Motor-Drive-Shield-L293D-for-Arduino-Duemilanove-Mega-UNO-p-72855.html?p=M908156347868201609Y)
+* [ESP13 Shield](http://www.banggood.com/ESP8266-Web-Server-Port-WiFi-Expansion-Board-ESP-13-Compatible-With-Arduino-p-1008124.html?p=M908156347868201609Y)
+* [Ultrasonic distance sensor HC-SR04 on a cradle](http://www.banggood.com/HC-SR04-Ultrasonic-Module-Distance-Measuring-Transducer-Sensor-With-Mount-Bracket-p-1029445.html?p=M908156347868201609Y)
+* [TowerPro SG90 Mini Gear Micro Servo](http://www.banggood.com/TowerPro-SG90-Mini-Gear-Micro-Servo-9g-For-RC-Airplane-Helicopter-p-1009914.html?p=M908156347868201609Y) to turn the ultrasonic sensor left and right
+* [Infrared Obstacle Avoiding Sensors](http://www.banggood.com/5Pcs-Infrared-Obstacle-Avoidance-Sensor-For-Arduino-Smart-Car-Robot-p-951032.html?p=M908156347868201609Y)
+* Tank chassis ([Geekcreit T300](http://www.banggood.com/DIY-DT300-WIFI-Double-Layer-Decker-Tracked-Model-Tank-Compatible-With-Arduino-UNO-R3-p-1079947.html?p=M908156347868201609Y) - can be any other)
 * Rechargeable Battery 6xAA 2500 mAh
 
 ## Software

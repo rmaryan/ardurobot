@@ -158,7 +158,6 @@ void RobotAI::processTask() {
 				// check for abyss
 				if(abyssDetectedProcessing) {
 					// if abyss detected - stop, go backward, then turn according to the distances
-					robotMotors->fullStop();
 					robotMotors->driveBackward(MOTOR_DRIVE_SPEED, 900);
 					scheduleTimedTask(1000);
 					currentAIState = stateAI_QueryDistances;

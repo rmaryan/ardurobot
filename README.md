@@ -1,4 +1,6 @@
 # ardurobot
 Sources of the Arduino Robot
 
-See the details at http://refunpro.blogspot.com/ (in Ukrainian)
+See the details in our blogs:
+ * http://onerobotstory.blogspot.com/ (English)
+ * http://refunpro.blogspot.com/ (Ukrainian)

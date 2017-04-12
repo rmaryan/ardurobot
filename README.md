@@ -29,10 +29,18 @@ See the details in our blogs:
 
 ### Robot modules
 
-*RobotDistanceSensor.h/.cpp* - class for accessing the ultrasonic distance sensor
+*RobotDistanceSensor.h/.cpp* - class for accessing the ultrasonic and infrared distance sensors
 
 *RobotLights.h/.cpp* - class for controlling robot LED's
 
 *RobotMotors.h/.cpp* - class for controling chasis motors
 
 *RobotVoice.h/.cpp* - class for generating sounds
+
+## Changes List
+### 1.3
+Added support for the Infrared Obstacle Detection Sensors. More details here: http://refunpro.blogspot.com/2017/03/16.html (Ukr)
+### 1.2
+Added support for the Ultrasonic Distance Sensor. More details here: http://refunpro.blogspot.com/2017/01/15.html (Ukr)
+### 1.1
+This is the initial version which includes simple scenario and the remote control code.

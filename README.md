@@ -2,7 +2,9 @@
 
 This is a source code for the Arduino-based robot with simple cooperative multitasking system and isolated modules which control different functions.
 
-See the details at http://refunpro.blogspot.com/ (in Ukrainian)
+See the details in our blogs:
+ * http://onerobotstory.blogspot.com/ (English)
+ * http://refunpro.blogspot.com/ (Ukrainian)
 
 ## Hardware
 

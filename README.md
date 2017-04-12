@@ -37,6 +37,6 @@ See the details in our blogs:
 
 ## Changes List
 ### 1.2
-Added support for hte Ultrasonic Distance Sensor. More details here: http://refunpro.blogspot.com/2017/01/15.html (Ukr)
+Added support for the Ultrasonic Distance Sensor. More details here: http://refunpro.blogspot.com/2017/01/15.html (Ukr)
 ### 1.1
 This is the initial version which includes simple scenario and the remote control code.

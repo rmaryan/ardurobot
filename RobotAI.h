@@ -11,6 +11,7 @@
 #include "RobotLights.h"
 #include "RobotVoice.h"
 #include "RobotDistanceSensor.h"
+#include "RobotConnector.h"
 
 /*
  * The list of the possible AI modes
@@ -62,6 +63,7 @@ private:
 	RobotDistanceSensor* robotDistanceSensor;
 	RobotLights* robotLights;
 	RobotVoice* robotVoice;
+	RobotConnector* robotConnector;
 
 	// when this flag is true - abyss was detected but the case was not handled yet
 	bool abyssDetectedProcessing = false;
@@ -99,7 +101,7 @@ public:
 	 * Robot AI constructor initializes the AI and stores the references to other robot modules.
 	 */
 	RobotAI(RobotMotors* in_robotMotors, RobotDistanceSensor* in_robotDistanceSensor, RobotLights* in_robotLights,
-			RobotVoice* in_robotVoice);
+			RobotVoice* in_robotVoice, RobotConnector* in_robotConnector);
 
 	/*
 	 * Cease all AI activities gracefully
@@ -111,6 +113,14 @@ public:
 	 * Here the AI controls the time and choose the next actions to do.
 	 */
 	virtual void processTask();
+
+	/*
+	 * These functions switch the AI module between the working modes.
+	 */
+	virtual void switchToModeIdle();
+	virtual void switchToModeAI();
+	virtual void switchToModeScenario();
+	virtual void switchToModeRC();
 };
 
 #endif /* ROBOTAI_H_ */

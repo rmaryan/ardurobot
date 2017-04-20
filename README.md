@@ -2,8 +2,10 @@
 
 This is a source code for the Arduino-based robot with simple cooperative multitasking system and isolated modules which control different functions.
 
-See the details at http://refunpro.blogspot.com/ (in Ukrainian)
-
+See the details in our blogs:
+ * http://onerobotstory.blogspot.com/ (English)
+ * http://refunpro.blogspot.com/ (Ukrainian)
+ 
 ## Hardware
 
 * [Arduino Mega 2560](http://www.banggood.com/Mega2560-R3-ATmega2560-16AU-Control-Board-With-USB-Cable-For-Arduino-p-73020.html?p=M908156347868201609Y)
@@ -27,10 +29,47 @@ See the details at http://refunpro.blogspot.com/ (in Ukrainian)
 
 ### Robot modules
 
-*RobotDistanceSensor.h/.cpp* - class for accessing the ultrasonic distance sensor
+*RobotDistanceSensor.h/.cpp* - class for accessing the ultrasonic and infrared distance sensor
 
 *RobotLights.h/.cpp* - class for controlling robot LED's
 
 *RobotMotors.h/.cpp* - class for controling chasis motors
 
 *RobotVoice.h/.cpp* - class for generating sounds
+
+## Remote Control Protocol
+
+Remote control is performed over Wi-Fi connection using simple telnet-like connection. It is also compatible with RoboRemo: http://www.roboremo.com/
+
+| Command From RC | Action                 | Response from the Robot (on success)        |
+| ----------------| ---------------------- | ------------------------------------------- |
+| MI              | Mode-Idle              | MI                                          |
+| MA              | Mode-AI                | MA                                          |
+| MS              | Mode-Scenario          | MS                                          |
+| MR              | Mode-Remote Control    | MR                                          |
+| W               | Move Forward           | -                                           | 
+| S               | Move Backward          | -                                           |
+| A               | Turn Left              | -                                           |
+| D               | Turn Right             | -                                           |
+| LF              | Toggle Front Lights    | LF1 or LF0                                  |
+| LR              | Toggle Rear Lights     | LR1 or LR0                                  |
+| LS              | Toggle Side Lights     | LS1 or LS0                                  |
+| R0              | Refresh Distances (with the head turn) | RLxx - left distance, where xx is a distance in centimeters with the leading zeros. RL-- means "not available" |
+|                 |                        | RFxx - front distance                          |
+|                 |                        | RRxx - right distance                          |
+|                 |                        | ROABCD - obstacle detectors state ("1"s or "0"s), <BR> A - left-ahead, B - left-edge, C - right-edge, D - right-ahead |
+| R1              | Refresh Distances (without the head turn) | same as above                |
+| XAAABBB         | Set the drives speed to AAA (left) and BBB (right). The speed is in range 000 - 511. 000 is full reverse, 511 means full ahead. | - |
+| -               | Debug message from the robot | ~<message text>                           |
+
+All commands should be followed by \n.
+
+## Changes List
+### 1.4
+Added support for the advanced remote control based on the RoboRemote desktop RC dashboard project https://github.com/rmaryan/roboremote. More details here: ... (Ukr) 
+### 1.3
+Added support for the Infrared Obstacle Detection Sensors. More details here: http://refunpro.blogspot.com/2017/03/16.html (Ukr)
+### 1.2
+Added support for the Ultrasonic Distance Sensor. More details here: http://refunpro.blogspot.com/2017/01/15.html (Ukr)
+### 1.1
+This is the initial version which includes simple scenario and the remote control code.

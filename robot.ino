@@ -10,6 +10,7 @@
 #include "RobotLights.h"
 #include "RobotVoice.h"
 #include "RobotAI.h"
+#include "RobotConnector.h"
 
 /****************************************************************************
  * This is a block which stores allocations of all Arduino pins used by different functions.
@@ -42,7 +43,7 @@ const uint8_t LED_SYNC_PIN = 100; //TODO assign a real pin
 const uint8_t LED_LATCH_PIN = 100;  //TODO assign a real pin
 /*****************************************************************************/
 
-const uint8_t TASKS_COUNT = 5;
+const uint8_t TASKS_COUNT = 6;
 
 // the list of the robots tasks to be executed in the main loop
 static TaskInterface* (robotTasks[TASKS_COUNT]);
@@ -52,6 +53,7 @@ RobotMotors* motors;
 RobotDistanceSensor* robotDistanceSensor;
 RobotLights* robotLights;
 RobotVoice*  robotVoice;
+RobotConnector* robotConnector;
 RobotAI*     robotAI;
 
 
@@ -63,7 +65,6 @@ void setup() {
 	}
 
 	// open a serial connection for the remote control
-	//TODO implement proper logger
 	Serial3.begin(9600);
 
 	// Define the entities which have own time slice in the main loop (tasks)
@@ -72,14 +73,16 @@ void setup() {
 			ABYSS_LEFT_PIN, ABYSS_RIGHT_PIN, IR_FRONT_LEFT_PIN, IR_FRONT_RIGHT_PIN);
 	robotLights = new RobotLights(LED_DATA_PIN, LED_SYNC_PIN, LED_LATCH_PIN);
 	robotVoice = new RobotVoice(VOICE_PIN);
-	robotAI = new RobotAI(motors, robotDistanceSensor, robotLights, robotVoice);
+	robotConnector = new RobotConnector();
+	robotAI = new RobotAI(motors, robotDistanceSensor, robotLights, robotVoice, robotConnector);
 
 	// create the tasks list
 	robotTasks[0] = motors;
 	robotTasks[1] = robotDistanceSensor;
 	robotTasks[2] = robotLights;
 	robotTasks[3] = robotVoice;
-	robotTasks[4] = robotAI;
+	robotTasks[4] = robotConnector;
+	robotTasks[5] = robotAI;
 
 	// register the abyss detection interrupts handler
 	// this handler is called each time sensors detect an abyss in front of the robot

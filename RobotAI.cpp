@@ -6,11 +6,12 @@
 #include "RobotAI.h"
 
 RobotAI::RobotAI(RobotMotors* in_robotMotors, RobotDistanceSensor* in_robotDistanceSensor, RobotLights* in_robotLights,
-		RobotVoice* in_robotVoice) {
+		RobotVoice* in_robotVoice, RobotConnector* in_robotConnector) {
 	robotMotors = in_robotMotors;
 	robotDistanceSensor = in_robotDistanceSensor;
 	robotLights = in_robotLights;
 	robotVoice = in_robotVoice;
+	robotConnector = in_robotConnector;
 
 	// Say hello
 	robotVoice->queueSound(sndHello);
@@ -38,29 +39,38 @@ void RobotAI::processTask() {
 		abyssDetectedFlag = false;
 	}
 
-	// Check if to toggle the remote control mode
-	int remoteCommand = 0;
-	if (Serial3.available() > 0) {
-		remoteCommand = Serial3.read();
+	// Check if any remote commands are available - there can be requests to change the mode
+	// here and further we are a bit ignorant about the real command length
+	// we assume that in any case - this is a proper null-terminated string
+	char* remoteCommand = NULL;
+	if (robotConnector->commandAvailable()) {
+		// get the reference to the remote command
+		remoteCommand = robotConnector->getCommand();
 
-		// "R" means "Toggle Remote Control Mode"
-		if (remoteCommand == 'R') {
+		// Check if this is a command to change the mode
+		if (remoteCommand[0] == 'M') {
+			// stop any current activities
 			robotMotors->fullStop();
 			robotVoice->queueSound(sndOK);
-			if (currentAIMode == modRemoteControl) {
+
+			switch(remoteCommand[1]) {
+			case 'I':
 				// switch to the idle mode
-				currentAIMode = modIdle;
-
-				// notify the RC application about the acceptance of the command
-				// LED will be turned OFF on the RC dashboard
-				Serial3.write("RCMODE off\n");
-			} else {
-				// engage the RC mode
-				currentAIMode = modRemoteControl;
-
-				// notify the RC application about the acceptance of the command
-				// LED will be turned ON on the RC dashboard
-				Serial3.write("RCMODE on\n");
+				switchToModeIdle();
+				robotConnector->sendMessage("MI");
+				break;
+			case 'A':
+				switchToModeAI();
+				robotConnector->sendMessage("MA");
+				break;
+			case 'S':
+				switchToModeScenario();
+				robotConnector->sendMessage("MS");
+				break;
+			case 'R':
+				switchToModeRC();
+				robotConnector->sendMessage("MR");
+				break;
 			}
 		}
 	}
@@ -77,7 +87,7 @@ void RobotAI::processTask() {
 			abyssDetectedProcessing = false;
 			currentAIMode = modIdle;
 		} else {
-			switch (remoteCommand) {
+			switch (remoteCommand[0]) {
 			case 0:
 				break;
 			case 'W':
@@ -91,6 +101,50 @@ void RobotAI::processTask() {
 				break;
 			case 'S':
 				robotMotors->fullStop();
+				break;
+			case 'L':
+				// Lights control commands
+				// TODO to be implemented
+				break;
+			case 'R':
+				// Distance querying commands
+				if(remoteCommand[1]=='0') {
+					// do a complete refresh of the distances turning the US sensor right and left
+					// TODO complete this
+					// Send:
+					// RLxxx - left distance, where xxx is a distance in millimeters with the leading zeros
+					// RFxxx - front distance
+					// ROABCD - obstacle detectors state ("1"s or "0"s), <BR> A - left-ahead, B - left-edge, C - right-edge, D - right-ahead
+				} else
+					if (remoteCommand[1]=='1') {
+						// return a quick data not waiting for the US sensor head turns
+
+						char messageBuffer[7] = "RF--";
+
+						int8_t frontDistance = robotDistanceSensor->getFrontDistance();
+						if(frontDistance >-1) {
+							// front distance is available
+							// convert it to string with the leading zeroes
+							// do not exceed 99 cm
+							if(frontDistance > 99) frontDistance = 99;
+							snprintf(messageBuffer, 5, "RF%02d", frontDistance);
+						}
+						robotConnector->sendMessage(messageBuffer);
+
+						// send the IR sensors state
+						snprintf(messageBuffer, 7, "RO%d%d%d%d",
+								robotDistanceSensor->getFrontLeftIRDetected(),
+								robotDistanceSensor->getFrontLeftAbyssDetected(),
+								robotDistanceSensor->getFrontRightAbyssDetected(),
+								robotDistanceSensor->getFrontRightIRDetected());
+						robotConnector->sendMessage(messageBuffer);
+					}
+				break;
+			case 'X':
+				// Motors speed direct control commands
+				// TODO to be implemented
+				// XAAABBB
+				// Set the drives speed to AAA (left) and BBB (right). The speed is in range 000 - 511. 000 is full reverse, 511 means full ahead.
 				break;
 			}
 		}
@@ -168,18 +222,18 @@ void RobotAI::processTask() {
 						// wait a little
 						scheduleTimedTask(300);
 					} else
-					if(frontObstacleStatus == foOBSTACLE) {
-						robotMotors->fullStop();
-						robotVoice->queueSound(sndQuestion);
-						robotDistanceSensor->querySideDistances();
+						if(frontObstacleStatus == foOBSTACLE) {
+							robotMotors->fullStop();
+							robotVoice->queueSound(sndQuestion);
+							robotDistanceSensor->querySideDistances();
 
-						currentAIState = stateAI_QueryDistances;
-						scheduleTimedTask(3000);
-					} else {
-						// the road is clear - go ahead!
-						robotMotors->driveForward(MOTOR_DRIVE_SPEED, 350);
-						scheduleTimedTask(300);
-					}
+							currentAIState = stateAI_QueryDistances;
+							scheduleTimedTask(3000);
+						} else {
+							// the road is clear - go ahead!
+							robotMotors->driveForward(MOTOR_DRIVE_SPEED, 350);
+							scheduleTimedTask(300);
+						}
 				}
 				break;
 			}
@@ -230,4 +284,18 @@ void RobotAI::processTask() {
 			}
 		}
 	}
+}
+
+void RobotAI::switchToModeIdle() {
+	currentAIMode = modIdle;
+}
+void RobotAI::switchToModeAI() {
+	currentAIMode = modAI;
+}
+void RobotAI::switchToModeScenario() {
+	currentAIMode = modScript;
+	currentScriptLine = 0;
+}
+void RobotAI::switchToModeRC() {
+	currentAIMode = modRemoteControl;
 }

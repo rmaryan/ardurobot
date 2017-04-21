@@ -46,7 +46,7 @@ public:
 	 * 0 is not sent.
 	 * Message bytes are followed by the COMMAND_TERM (\n)
 	 */
-	virtual void sendMessage(char* message);
+	virtual void sendMessage(const char* message);
 };
 
 #endif /* ROBOTCONNECTOR_H_ */

@@ -60,7 +60,7 @@ Remote control is performed over Wi-Fi connection using simple telnet-like conne
 |                 |                        | ROABCD - obstacle detectors state ("1"s or "0"s), <BR> A - left-ahead, B - left-edge, C - right-edge, D - right-ahead |
 | R1              | Refresh Distances (without the head turn) | same as above                |
 | XAAABBB         | Set the drives speed to AAA (left) and BBB (right). The speed is in range 000 - 511. 000 is full reverse, 511 means full ahead. | - |
-| -               | Debug message from the robot | ~<message text>                           |
+| -               | Debug message from the robot | ~message text                             |
 
 All commands should be followed by \n.
 

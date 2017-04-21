@@ -69,11 +69,11 @@ void setup() {
 
 	// Define the entities which have own time slice in the main loop (tasks)
 	motors = new RobotMotors();
+	robotConnector = new RobotConnector();
 	robotDistanceSensor = new RobotDistanceSensor(US_SERVO_PIN, US_TRG_PIN, US_ECHO_PIN,
-			ABYSS_LEFT_PIN, ABYSS_RIGHT_PIN, IR_FRONT_LEFT_PIN, IR_FRONT_RIGHT_PIN);
+			ABYSS_LEFT_PIN, ABYSS_RIGHT_PIN, IR_FRONT_LEFT_PIN, IR_FRONT_RIGHT_PIN, robotConnector);
 	robotLights = new RobotLights(LED_DATA_PIN, LED_SYNC_PIN, LED_LATCH_PIN);
 	robotVoice = new RobotVoice(VOICE_PIN);
-	robotConnector = new RobotConnector();
 	robotAI = new RobotAI(motors, robotDistanceSensor, robotLights, robotVoice, robotConnector);
 
 	// create the tasks list

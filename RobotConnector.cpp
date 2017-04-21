@@ -52,7 +52,7 @@ char* RobotConnector::getCommand() {
 	}
 }
 
-void RobotConnector::sendMessage(char* message) {
+void RobotConnector::sendMessage(const char* message) {
 	Serial3.write(message);
 	Serial3.write(COMMAND_TERM);
 }

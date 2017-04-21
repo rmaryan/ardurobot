@@ -81,11 +81,9 @@ void RobotAI::processTask() {
 		break; //do nothing
 	case modRemoteControl: {
 		if(abyssDetectedProcessing) {
-			// TODO this is to be rewritten once more advanced remote control will be ready
-			// drive backward and wait a bit, then switch to idle mode
+			// drive backward and wait a bit
 			robotMotors->driveBackward(160, 600);
 			abyssDetectedProcessing = false;
-			currentAIMode = modIdle;
 		} else {
 			switch (remoteCommand[0]) {
 			case 0:
@@ -107,44 +105,27 @@ void RobotAI::processTask() {
 				// TODO to be implemented
 				break;
 			case 'R':
-				// Distance querying commands
-				if(remoteCommand[1]=='0') {
-					// do a complete refresh of the distances turning the US sensor right and left
-					// TODO complete this
-					// Send:
-					// RLxxx - left distance, where xxx is a distance in millimeters with the leading zeros
-					// RFxxx - front distance
-					// ROABCD - obstacle detectors state ("1"s or "0"s), <BR> A - left-ahead, B - left-edge, C - right-edge, D - right-ahead
-				} else
-					if (remoteCommand[1]=='1') {
-						// return a quick data not waiting for the US sensor head turns
-
-						char messageBuffer[7] = "RF--";
-
-						int8_t frontDistance = robotDistanceSensor->getFrontDistance();
-						if(frontDistance >-1) {
-							// front distance is available
-							// convert it to string with the leading zeroes
-							// do not exceed 99 cm
-							if(frontDistance > 99) frontDistance = 99;
-							snprintf(messageBuffer, 5, "RF%02d", frontDistance);
-						}
-						robotConnector->sendMessage(messageBuffer);
-
-						// send the IR sensors state
-						snprintf(messageBuffer, 7, "RO%d%d%d%d",
-								robotDistanceSensor->getFrontLeftIRDetected(),
-								robotDistanceSensor->getFrontLeftAbyssDetected(),
-								robotDistanceSensor->getFrontRightAbyssDetected(),
-								robotDistanceSensor->getFrontRightIRDetected());
-						robotConnector->sendMessage(messageBuffer);
-					}
+				// Distance querying command
+				robotDistanceSensor->sendDistancesSensorsState(remoteCommand[1]=='0');
 				break;
 			case 'X':
-				// Motors speed direct control commands
-				// TODO to be implemented
-				// XAAABBB
-				// Set the drives speed to AAA (left) and BBB (right). The speed is in range 000 - 511. 000 is full reverse, 511 means full ahead.
+				// Motors speed direct control commands XAAABBB
+				// Set the drives speed to AAA (left) and BBB (right).
+				// The speed is in range 000 - 511. 000 is full reverse, 511 means full ahead.
+
+				if(strlen(remoteCommand)==7) {
+					char speedBuffer[4] = "000";
+					int16_t rightSpeed = 255;
+					int16_t leftSpeed = 255;
+
+					strncpy(speedBuffer, &(remoteCommand[1]),3);
+					leftSpeed = atoi(speedBuffer);
+
+					strncpy(speedBuffer, &(remoteCommand[4]),3);
+					rightSpeed = atoi(speedBuffer);
+
+					robotMotors->setMotorSpeed(leftSpeed, rightSpeed, 600);
+				}
 				break;
 			}
 		}
@@ -225,7 +206,7 @@ void RobotAI::processTask() {
 						if(frontObstacleStatus == foOBSTACLE) {
 							robotMotors->fullStop();
 							robotVoice->queueSound(sndQuestion);
-							robotDistanceSensor->querySideDistances();
+							robotDistanceSensor->querySideDistances(false);
 
 							currentAIState = stateAI_QueryDistances;
 							scheduleTimedTask(3000);
@@ -244,7 +225,7 @@ void RobotAI::processTask() {
 
 				if(obstacleDirection == odUNKNOWN) {
 					// something is wrong, try to measure the distance again
-					robotDistanceSensor->querySideDistances();
+					robotDistanceSensor->querySideDistances(false);
 					scheduleTimedTask(3000);
 				} else {
 					// we assume we already escaped the abyss

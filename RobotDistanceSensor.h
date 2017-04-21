@@ -4,6 +4,7 @@
 #include "Arduino.h"
 #include <Servo.h>
 #include "TaskInterface.h"
+#include "RobotConnector.h"
 
 /*
  * A set of the distance sensor states:
@@ -75,13 +76,25 @@ private:
 	// the timestamp of the last front distance measurement
 	long lastFDistanceTimeStamp = 0;
 
+	// reference to the robot Wi-Fi connector
+	// sometimes we need to send measured distances over WiFi
+	RobotConnector* robotConnector;
+
+	// is set to true when after measuring distances they need to be sent to the RC client
+	bool sendDistances = false;
+
 	// just reads the distance from the sensor regardless of the servo position
 	// returns the distance in cm
 	int8_t getDistance();
 
+	// send one of the front distances to the Remote Control client
+	// Direction can be 'F', 'L', 'R' - front, left, right
+	void sendFrontDistance(int8_t distance, char direction);
+
 public:
 	RobotDistanceSensor(uint8_t in_servoPin, uint8_t in_triggerPin, uint8_t in_echoPin,
-			uint8_t in_abyssLeftPin, uint8_t in_abyssRightPin, uint8_t in_IRFrontLeftPin, uint8_t in_IRFrontRightPin);
+			uint8_t in_abyssLeftPin, uint8_t in_abyssRightPin, uint8_t in_IRFrontLeftPin, uint8_t in_IRFrontRightPin,
+			RobotConnector* in_robotConnector);
 	virtual ~RobotDistanceSensor();
 
 	/*
@@ -122,8 +135,9 @@ public:
 	 * Initiate the measurement of the side distances (front-left and front-rihgt)
 	 * this method performs a sequence of actions on turning the head and measuring the distances
 	 * this work can take up to 500 ms
+	 * If sendDistances == true - send measured distances to the Remote Control client
 	 */
-	void querySideDistances();
+	void querySideDistances(bool in_sendDistances);
 
 	// Front obstacle detectors getters
 	bool getFrontLeftIRDetected();
@@ -134,6 +148,10 @@ public:
 	bool getFrontAbyssDetected();
 	bool getFrontLeftAbyssDetected();
 	bool getFrontRightAbyssDetected();
+
+	// Send the distance sensors measurements to the Remote Control client
+	// If forceSideDistances true - measure also side distances rotating the US sensor
+	void sendDistancesSensorsState(bool forceSideDistances);
 };
 
 #endif //#ifndef RobotDistanceSensor_h

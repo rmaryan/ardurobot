@@ -15,7 +15,7 @@ void RobotConnector::processTask() {
 	if (!messageReady) {
 		while (Serial3.available() > 0) {
 
-			int incomingByte = Serial.read();
+			int incomingByte = Serial3.read();
 
 			switch (incomingByte) {
 			case -1:

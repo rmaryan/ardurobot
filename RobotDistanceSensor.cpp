@@ -223,13 +223,16 @@ bool RobotDistanceSensor::getFrontRightAbyssDetected() {
 
 void RobotDistanceSensor::sendDistancesSensorsState(bool forceSideDistances) {
 
-	// should we look for the side distances by rotating the UltraSonic sensor?
-	if(forceSideDistances) {
-		// do a complete refresh of the distances turning the US sensor right and left
-		querySideDistances(true);
-	} else {
-		// return a quick data not waiting for the US sensor head turns
-		sendFrontDistance(getFrontDistance(), 'F');
+	// ignore extra commands if busy
+	if(dsState == dsIdle) {
+		// should we look for the side distances by rotating the UltraSonic sensor?
+		if(forceSideDistances) {
+			// do a complete refresh of the distances turning the US sensor right and left
+			querySideDistances(true);
+		} else {
+			// return a quick data not waiting for the US sensor head turns
+			sendFrontDistance(getFrontDistance(), 'F');
+		}
 	}
 
 	char messageBuffer[7];
@@ -248,8 +251,6 @@ void RobotDistanceSensor::sendFrontDistance(int8_t distance, char direction) {
 
 	char messageBuffer[5] = "RF--";
 
-	messageBuffer[1] = direction;
-
 	if(distance >-1) {
 		// front distance is available
 		// convert it to string with the leading zeroes
@@ -258,5 +259,8 @@ void RobotDistanceSensor::sendFrontDistance(int8_t distance, char direction) {
 
 		snprintf(messageBuffer, 5, "RF%02d", distance);
 	}
+
+	messageBuffer[1] = direction;
+
 	robotConnector->sendMessage(messageBuffer);
 }

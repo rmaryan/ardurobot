@@ -64,7 +64,7 @@ void RobotMotors::setMotorSpeed(uint16_t leftSpeed, uint16_t rightSpeed, uint16_
 		leftMotor->run(RELEASE);
 	} else
 		if(leftSpeed > 255) {
-			leftMotor->setSpeed(leftSpeed-255);
+			leftMotor->setSpeed(leftSpeed-256);
 			leftMotor->run(FORWARD);
 		} else {
 			leftMotor->setSpeed(255 - leftSpeed);
@@ -75,7 +75,7 @@ void RobotMotors::setMotorSpeed(uint16_t leftSpeed, uint16_t rightSpeed, uint16_
 		rightMotor->run(RELEASE);
 	} else
 		if(rightSpeed > 255) {
-			rightMotor->setSpeed(rightSpeed-255);
+			rightMotor->setSpeed(rightSpeed-256);
 			rightMotor->run(FORWARD);
 		} else {
 			rightMotor->setSpeed(255 - rightSpeed);

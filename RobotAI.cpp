@@ -115,8 +115,8 @@ void RobotAI::processTask() {
 
 				if(strlen(remoteCommand)==7) {
 					char speedBuffer[4] = "000";
-					int16_t rightSpeed = 255;
-					int16_t leftSpeed = 255;
+					uint16_t rightSpeed = 255;
+					uint16_t leftSpeed = 255;
 
 					strncpy(speedBuffer, &(remoteCommand[1]),3);
 					leftSpeed = atoi(speedBuffer);

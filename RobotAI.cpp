@@ -98,7 +98,7 @@ void RobotAI::processTask() {
 				robotMotors->turnRight(255, 600);
 				break;
 			case 'S':
-				robotMotors->fullStop();
+				robotMotors->driveBackward(255, 600);
 				break;
 			case 'L':
 				// Lights control commands

@@ -81,6 +81,14 @@ public:
 	void turnLeft(uint8_t speed = 255, uint16_t duration = 0);
 
 	/*
+	 * A direct motor speed control method.
+	 * @leftSpeed and @rightSpeed - actual speeds of the motors
+	 * The speed is in range 000 - 511. 000 is full reverse, 511 means full ahead
+	 * @duration - how long to turn in ms
+	 */
+	void setMotorSpeed(uint16_t leftSpeed, uint16_t rightSpeed, uint16_t duration);
+
+	/*
 	 * Stop both motors.
 	 * This command can be called by the robot AI or other modules to change the drives state.
 	 */

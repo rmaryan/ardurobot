@@ -1,7 +1,8 @@
 #include "RobotDistanceSensor.h"
 
 RobotDistanceSensor::RobotDistanceSensor(uint8_t in_servoPin, uint8_t in_triggerPin, uint8_t in_echoPin,
-		uint8_t in_abyssLeftPin, uint8_t in_abyssRightPin, uint8_t in_IRFrontLeftPin, uint8_t in_IRFrontRightPin)
+		uint8_t in_abyssLeftPin, uint8_t in_abyssRightPin, uint8_t in_IRFrontLeftPin, uint8_t in_IRFrontRightPin,
+		RobotConnector* in_robotConnector)
 {
 	triggerPin=in_triggerPin;
 	echoPin=in_echoPin;
@@ -21,6 +22,8 @@ RobotDistanceSensor::RobotDistanceSensor(uint8_t in_servoPin, uint8_t in_trigger
 	pinMode(abyssRightPin, INPUT);
 	pinMode(irFrontLeftPin, INPUT);
 	pinMode(irFrontRightPin, INPUT);
+
+	robotConnector = in_robotConnector;
 }
 
 RobotDistanceSensor::~RobotDistanceSensor() {
@@ -71,9 +74,10 @@ int8_t RobotDistanceSensor::getLastFrontRightDistance() {
 	return lastFRDistance;
 }
 
-void RobotDistanceSensor::querySideDistances() {
+void RobotDistanceSensor::querySideDistances(bool in_sendDistances) {
 	// start measuring from the front-right
 	dsState = dsMeasuringFR;
+	sendDistances = in_sendDistances;
 
 	lastFLDistance = -1;
 	lastFRDistance = -1;
@@ -113,6 +117,14 @@ void RobotDistanceSensor::processTask() {
 				// measure the distance and set the timestamp
 				lastFDistance = getDistance();
 				lastFDistanceTimeStamp = millis();
+
+				// should we send the distance measures to the RC client?
+				if(sendDistances) {
+					sendFrontDistance(lastFDistance, 'F');
+					sendFrontDistance(lastFLDistance, 'L');
+					sendFrontDistance(lastFRDistance, 'R');
+					sendDistances = false;
+				}
 				dsState = dsIdle;
 				break;
 			}
@@ -207,4 +219,48 @@ bool RobotDistanceSensor::getFrontLeftAbyssDetected() {
 
 bool RobotDistanceSensor::getFrontRightAbyssDetected() {
 	return digitalRead(abyssRightPin);
+}
+
+void RobotDistanceSensor::sendDistancesSensorsState(bool forceSideDistances) {
+
+	// ignore extra commands if busy
+	if(dsState == dsIdle) {
+		// should we look for the side distances by rotating the UltraSonic sensor?
+		if(forceSideDistances) {
+			// do a complete refresh of the distances turning the US sensor right and left
+			querySideDistances(true);
+		} else {
+			// return a quick data not waiting for the US sensor head turns
+			sendFrontDistance(getFrontDistance(), 'F');
+		}
+	}
+
+	char messageBuffer[7];
+
+	// send the IR sensors state
+	snprintf(messageBuffer, 7, "RO%d%d%d%d",
+			getFrontLeftIRDetected(),
+			getFrontLeftAbyssDetected(),
+			getFrontRightAbyssDetected(),
+			getFrontRightIRDetected());
+	robotConnector->sendMessage(messageBuffer);
+
+}
+
+void RobotDistanceSensor::sendFrontDistance(int8_t distance, char direction) {
+
+	char messageBuffer[5] = "RF--";
+
+	if(distance >-1) {
+		// front distance is available
+		// convert it to string with the leading zeroes
+		// do not exceed 99 cm
+		if(distance > 99) distance = 99;
+
+		snprintf(messageBuffer, 5, "RF%02d", distance);
+	}
+
+	messageBuffer[1] = direction;
+
+	robotConnector->sendMessage(messageBuffer);
 }

@@ -31,6 +31,8 @@ See the details in our blogs:
 
 *RobotDistanceSensor.h/.cpp* - class for accessing the ultrasonic and infrared distance sensor
 
+*RobotConnector.h/.cpp* - class for managing the remote connection through the serial interface
+
 *RobotLights.h/.cpp* - class for controlling robot LED's
 
 *RobotMotors.h/.cpp* - class for controling chasis motors
@@ -66,7 +68,7 @@ All commands should be followed by \n.
 
 ## Changes List
 ### 1.4
-Added support for the advanced remote control based on the RoboRemote desktop RC dashboard project https://github.com/rmaryan/roboremote. More details here: ... (Ukr) 
+Added support for the advanced remote control based on the RoboRemote desktop RC dashboard project https://github.com/rmaryan/roboremote. More details here: https://refunpro.blogspot.com (Ukr) 
 ### 1.3
 Added support for the Infrared Obstacle Detection Sensors. More details here: http://refunpro.blogspot.com/2017/03/16.html (Ukr)
 ### 1.2

@@ -68,7 +68,7 @@ All commands should be followed by \n.
 
 ## Changes List
 ### 1.4
-Added support for the advanced remote control based on the RoboRemote desktop RC dashboard project https://github.com/rmaryan/roboremote. More details here: https://refunpro.blogspot.com (Ukr) 
+Added support for the advanced remote control based on the RoboRemote desktop RC dashboard project https://github.com/rmaryan/roboremote. More details here: http://refunpro.blogspot.com/2017/07/17.html (Ukr) 
 ### 1.3
 Added support for the Infrared Obstacle Detection Sensors. More details here: http://refunpro.blogspot.com/2017/03/16.html (Ukr)
 ### 1.2

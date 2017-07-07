@@ -220,8 +220,7 @@ void RobotAI::processTask() {
 			}
 			case stateAI_QueryDistances: {
 
-				ObstacleDirections obstacleDirection = robotDistanceSensor->getObstacleDirection();
-
+        ObstacleDirections obstacleDirection = robotDistanceSensor->getObstacleDirection();
 
 				if(obstacleDirection == odUNKNOWN) {
 					// something is wrong, try to measure the distance again

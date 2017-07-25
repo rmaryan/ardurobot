@@ -41,6 +41,6 @@ See the details in our blogs:
 ### 1.3
 Added support for the Infrared Obstacle Detection Sensors. More details here: http://refunpro.blogspot.com/2017/03/16.html (Ukr)
 ### 1.2
-Added support for the Ultrasonic Distance Sensor. More details here: http://refunpro.blogspot.com/2017/01/15.html (Ukr)
+Added support for the Ultrasonic Distance Sensor. More details here: http://onerobotstory.blogspot.com/2017/07/10-ultrasonic-distance-sensor.html (Eng) or here: http://refunpro.blogspot.com/2017/01/15.html (Ukr)
 ### 1.1
 This is the initial version which includes simple scenario and the remote control code. More details here: http://onerobotstory.blogspot.com/2017/06/9-wifi-remote-control.html (Eng) or here: https://refunpro.blogspot.com/2016/11/10.html (Ukr)

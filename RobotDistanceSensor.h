@@ -106,8 +106,10 @@ public:
 	virtual void processTask();
 
 	/*
-	 * Returns true if at least one sensor detected an obstacle or abyss
-	 * in front of the robot
+	 * Returns:
+	 *   foUNKNOWN - impossible to detect as for now
+	 *   foOBSTACLE - obstacle (or abyss) detected by at least one sensor
+         *   foFREE - the road is free
 	 */
 	FrontObstacleStatus isObstacleInFront();
 

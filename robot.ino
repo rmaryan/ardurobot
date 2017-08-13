@@ -35,12 +35,11 @@ const uint8_t ABYSS_RIGHT_PIN = 20; // IR sensor abyss detection right side
 const uint8_t ABYSS_LEFT_PIN = 21;  // IR sensor abyss detection left side
 const uint8_t US_ECHO_PIN = 22; // ultrasonic sensor echo pin
 const uint8_t US_TRG_PIN = 23;  // ultrasonic sensor trigger pin
+const uint8_t LED_FRONT_PIN = 31;  // front LED control pin
+const uint8_t LED_REAR_PIN = 33;  // rear LED control pin
 const uint8_t IR_FRONT_RIGHT_PIN = 51;  // infrared obstacle detector
 const uint8_t IR_FRONT_LEFT_PIN = 53;  // infrared obstacle detector
 
-const uint8_t LED_DATA_PIN = 100; //TODO assign a real pin
-const uint8_t LED_SYNC_PIN = 100; //TODO assign a real pin
-const uint8_t LED_LATCH_PIN = 100;  //TODO assign a real pin
 /*****************************************************************************/
 
 const uint8_t TASKS_COUNT = 6;
@@ -72,7 +71,7 @@ void setup() {
 	robotConnector = new RobotConnector();
 	robotDistanceSensor = new RobotDistanceSensor(US_SERVO_PIN, US_TRG_PIN, US_ECHO_PIN,
 			ABYSS_LEFT_PIN, ABYSS_RIGHT_PIN, IR_FRONT_LEFT_PIN, IR_FRONT_RIGHT_PIN, robotConnector);
-	robotLights = new RobotLights(LED_DATA_PIN, LED_SYNC_PIN, LED_LATCH_PIN);
+	robotLights = new RobotLights(LED_FRONT_PIN, LED_REAR_PIN);
 	robotVoice = new RobotVoice(VOICE_PIN);
 	robotAI = new RobotAI(motors, robotDistanceSensor, robotLights, robotVoice, robotConnector);
 

@@ -7,10 +7,12 @@
 
 #include "RobotLights.h"
 
-RobotLights::RobotLights(uint8_t in_dataPin, uint8_t in_syncPin, uint8_t in_latchPin) {
-	dataPin = in_dataPin;
-	syncPin = in_syncPin;
-	latchPin = in_latchPin;
+RobotLights::RobotLights(uint8_t in_frontPin, uint8_t in_rearPin) {
+	frontPin = in_frontPin;
+	rearPin = in_rearPin;
+
+	pinMode(frontPin, OUTPUT);
+	pinMode(rearPin, OUTPUT);
 
 	scheduleTimedTask(2000);
 }
@@ -19,8 +21,16 @@ RobotLights::~RobotLights() {
 
 }
 
+void RobotLights::turnFrontLED(bool turnOn) {
+	digitalWrite(frontPin, turnOn);
+}
+
+void RobotLights::turnRearLED(bool turnOn) {
+	digitalWrite(rearPin, turnOn);
+}
+
 void RobotLights::processTask() {
-//TODO To be implemented
+// No special scenarios used yet
 //	if(reachedDeadline()) {
 //		if(latchPin == 0) {
 //			// turn on the leds

@@ -102,7 +102,18 @@ void RobotAI::processTask() {
 				break;
 			case 'L':
 				// Lights control commands
-				// TODO to be implemented
+				if(strlen(remoteCommand)==3) {
+					bool turnOn = (remoteCommand[2] == '1');
+
+					switch (remoteCommand[1]) {
+					case 'F':
+						robotLights->turnFrontLED(turnOn);
+						break;
+					case 'R':
+						robotLights->turnRearLED(turnOn);
+						break;
+					}
+				}
 				break;
 			case 'R':
 				// Distance querying command
@@ -220,7 +231,7 @@ void RobotAI::processTask() {
 			}
 			case stateAI_QueryDistances: {
 
-        ObstacleDirections obstacleDirection = robotDistanceSensor->getObstacleDirection();
+				ObstacleDirections obstacleDirection = robotDistanceSensor->getObstacleDirection();
 
 				if(obstacleDirection == odUNKNOWN) {
 					// something is wrong, try to measure the distance again

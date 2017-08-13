@@ -11,24 +11,26 @@
 #include "TaskInterface.h"
 
 /*
- * TODO To be completed
  * This class takes care about the robot LED lighting
- * All LED's are connected through the shift register
  */
 class RobotLights: public TaskInterface {
 private:
-	uint8_t dataPin;
-	uint8_t syncPin;
-	uint8_t latchPin;
+	uint8_t frontPin;
+	uint8_t rearPin;
 public:
 	/*
-	 * dataPin - the pin used to feed data to the shift register
-	 * syncPin - the pin to send the synchronization signal to the register
-	 * latchPin - the pin to refresh the register outputs state
+	 * frontPin - the pin connected to the front LED's
+	 * rearPin - the pin connected to the rear LED's
 	 */
-	RobotLights(uint8_t in_dataPin, uint8_t in_syncPin, uint8_t in_latchPin);
+	RobotLights(uint8_t in_frontPin, uint8_t in_rearPin);
 	virtual ~RobotLights();
 	virtual void processTask();
+
+	/*
+	 * Turn the LEDs on and off
+	 */
+	virtual void turnFrontLED(bool turnOn);
+	virtual void turnRearLED(bool turnOn);
 };
 
 #endif /* ROBOTLIGHTS_H_ */

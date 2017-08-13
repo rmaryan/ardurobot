@@ -108,9 +108,15 @@ void RobotAI::processTask() {
 					switch (remoteCommand[1]) {
 					case 'F':
 						robotLights->turnFrontLED(turnOn);
+						robotConnector->sendMessage(remoteCommand);
 						break;
 					case 'R':
 						robotLights->turnRearLED(turnOn);
+						robotConnector->sendMessage(remoteCommand);
+						break;
+					case 'S':
+						//robotLights->turnFrontLED(turnOn);
+						//robotConnector->sendMessage(remoteCommand);
 						break;
 					}
 				}

@@ -37,6 +37,8 @@ const uint8_t US_ECHO_PIN = 22; // ultrasonic sensor echo pin
 const uint8_t US_TRG_PIN = 23;  // ultrasonic sensor trigger pin
 const uint8_t LED_FRONT_PIN = 31;  // front LED control pin
 const uint8_t LED_REAR_PIN = 33;  // rear LED control pin
+const uint8_t LED_RIGHT_PIN = 42;  // right LED control pin
+const uint8_t LED_LEFT_PIN = 43;  // left LED control pin
 const uint8_t IR_FRONT_RIGHT_PIN = 51;  // infrared obstacle detector
 const uint8_t IR_FRONT_LEFT_PIN = 53;  // infrared obstacle detector
 
@@ -71,7 +73,7 @@ void setup() {
 	robotConnector = new RobotConnector();
 	robotDistanceSensor = new RobotDistanceSensor(US_SERVO_PIN, US_TRG_PIN, US_ECHO_PIN,
 			ABYSS_LEFT_PIN, ABYSS_RIGHT_PIN, IR_FRONT_LEFT_PIN, IR_FRONT_RIGHT_PIN, robotConnector);
-	robotLights = new RobotLights(LED_FRONT_PIN, LED_REAR_PIN);
+	robotLights = new RobotLights(LED_FRONT_PIN, LED_REAR_PIN, LED_LEFT_PIN, LED_RIGHT_PIN);
 	robotVoice = new RobotVoice(VOICE_PIN);
 	robotAI = new RobotAI(motors, robotDistanceSensor, robotLights, robotVoice, robotConnector);
 

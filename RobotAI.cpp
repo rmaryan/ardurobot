@@ -115,8 +115,8 @@ void RobotAI::processTask() {
 						robotConnector->sendMessage(remoteCommand);
 						break;
 					case 'S':
-						//robotLights->turnFrontLED(turnOn);
-						//robotConnector->sendMessage(remoteCommand);
+						robotLights->turnSideLED(turnOn);
+						robotConnector->sendMessage(remoteCommand);
 						break;
 					}
 				}
@@ -285,14 +285,18 @@ void RobotAI::processTask() {
 
 void RobotAI::switchToModeIdle() {
 	currentAIMode = modIdle;
+	robotLights->turnSideLED(false);
 }
 void RobotAI::switchToModeAI() {
 	currentAIMode = modAI;
+	robotLights->turnSideLED(true);
 }
 void RobotAI::switchToModeScenario() {
 	currentAIMode = modScript;
 	currentScriptLine = 0;
+	robotLights->turnSideLED(false);
 }
 void RobotAI::switchToModeRC() {
 	currentAIMode = modRemoteControl;
+	robotLights->turnSideLED(false);
 }

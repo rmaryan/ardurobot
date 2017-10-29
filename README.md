@@ -53,9 +53,9 @@ Remote control is performed over Wi-Fi connection using simple telnet-like conne
 | S               | Move Backward          | -                                           |
 | A               | Turn Left              | -                                           |
 | D               | Turn Right             | -                                           |
-| LF              | Toggle Front Lights    | LF1 or LF0                                  |
-| LR              | Toggle Rear Lights     | LR1 or LR0                                  |
-| LS              | Toggle Side Lights     | LS1 or LS0                                  |
+| LFx             | Turn Front Lights (1 - ON, 2 - OFF)   | LF1 or LF0                   |
+| LRx             | Turn Rear Lights (1 - ON, 2 - OFF)    | LR1 or LR0                   |
+| LSx             | Turn Side Lights (1 - ON, 2 - OFF)    | LS1 or LS0                   |
 | R0              | Refresh Distances (with the head turn) | RLxx - left distance, where xx is a distance in centimeters with the leading zeros. RL-- means "not available" |
 |                 |                        | RFxx - front distance                          |
 |                 |                        | RRxx - right distance                          |
@@ -67,10 +67,12 @@ Remote control is performed over Wi-Fi connection using simple telnet-like conne
 All commands should be followed by \n.
 
 ## Changes List
+### 1.5
+Added support for the front, rear, and side LED lights. More details here: http://refunpro.blogspot.com/??? (Ukr) 
 ### 1.4
-Added support for the advanced remote control based on the RoboRemote desktop RC dashboard project https://github.com/rmaryan/roboremote. More details here: http://refunpro.blogspot.com/2017/07/17.html (Ukr) 
+Added support for the advanced remote control based on the RoboRemoteFPV desktop RC dashboard project https://github.com/rmaryan/roboremote. More details here: https://onerobotstory.blogspot.com/2017/08/12-better-remote-control-with-fpv.html (Eng) or here http://refunpro.blogspot.com/2017/07/17.html (Ukr) 
 ### 1.3
-Added support for the Infrared Obstacle Detection Sensors. More details here: http://refunpro.blogspot.com/2017/03/16.html (Ukr)
+Added support for the Infrared Obstacle Detection Sensors. More details here: https://onerobotstory.blogspot.com/2017/08/11-infrared-distance-sensors.html (Eng) or here http://refunpro.blogspot.com/2017/03/16.html (Ukr)
 ### 1.2
 Added support for the Ultrasonic Distance Sensor. More details here: http://onerobotstory.blogspot.com/2017/07/10-ultrasonic-distance-sensor.html (Eng) or here: http://refunpro.blogspot.com/2017/01/15.html (Ukr)
 ### 1.1

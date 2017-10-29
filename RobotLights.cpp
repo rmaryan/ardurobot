@@ -7,10 +7,19 @@
 
 #include "RobotLights.h"
 
-RobotLights::RobotLights(uint8_t in_dataPin, uint8_t in_syncPin, uint8_t in_latchPin) {
-	dataPin = in_dataPin;
-	syncPin = in_syncPin;
-	latchPin = in_latchPin;
+RobotLights::RobotLights(uint8_t in_frontPin, uint8_t in_rearPin, uint8_t in_leftPin, uint8_t in_rightPin) {
+	frontPin = in_frontPin;
+	rearPin = in_rearPin;
+
+	pinMode(frontPin, OUTPUT);
+	pinMode(rearPin, OUTPUT);
+
+	// Initialize the NeoPixel objects
+	leftPix = new Adafruit_NeoPixel(3, in_leftPin, NEO_RGB + NEO_KHZ800);
+	rightPix = new Adafruit_NeoPixel(3, in_rightPin, NEO_RGB + NEO_KHZ800);
+
+	leftPix->begin();
+	rightPix->begin();
 
 	scheduleTimedTask(2000);
 }
@@ -19,21 +28,38 @@ RobotLights::~RobotLights() {
 
 }
 
-void RobotLights::processTask() {
-//TODO To be implemented
-//	if(reachedDeadline()) {
-//		if(latchPin == 0) {
-//			// turn on the leds
-//			digitalWrite(dataPin, HIGH);
-//			digitalWrite(syncPin, HIGH);
-//			latchPin = 1;
-//		} else {
-//			// turn off the leds
-//			digitalWrite(dataPin, LOW);
-//			digitalWrite(syncPin, LOW);
-//			latchPin = 0;
-//		}
-//		scheduleTimedTask(2000);
-//	}
+void RobotLights::turnFrontLED(bool turnOn) {
+	digitalWrite(frontPin, turnOn);
+}
 
+void RobotLights::turnRearLED(bool turnOn) {
+	digitalWrite(rearPin, turnOn);
+}
+
+void RobotLights::turnSideLED(bool turnOn) {
+	sideLedsActive = turnOn;
+}
+
+void RobotLights::processTask() {
+	if(reachedDeadline()) {
+		// if the side lights turned on - light the LED's in random colors
+		if(sideLedsActive) {
+			leftPix->setPixelColor(0, random(0,255), random(0,255), random(0,255));
+			leftPix->setPixelColor(1, random(0,255), random(0,255), random(0,255));
+			leftPix->setPixelColor(2, random(0,255), random(0,255), random(0,255));
+			leftPix->show();
+			rightPix->setPixelColor(0, random(0,255), random(0,255), random(0,255));
+			rightPix->setPixelColor(1, random(0,255), random(0,255), random(0,255));
+			rightPix->setPixelColor(2, random(0,255), random(0,255), random(0,255));
+			rightPix->show();
+		} else {
+			// turn off the LEDS
+			leftPix->clear();
+			leftPix->show();
+			rightPix->clear();
+			rightPix->show();
+		}
+
+		scheduleTimedTask(LED_DELAY);
+	}
 }

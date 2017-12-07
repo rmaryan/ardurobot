@@ -16,10 +16,7 @@ enum MotorCurrentCommand { cmdFwd, cmdRight, cmdLeft, cmdStop};
 
 /*
  * The motors control class.
- * This version assumes managing motors through the transistor-based schematics.
- * No reverse gear.
  */
-
 class RobotMotors: public TaskInterface {
 private:
 	const uint8_t leftDriveID = 1; // motor shield drive # for the left drive
